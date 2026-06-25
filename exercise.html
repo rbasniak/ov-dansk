@@ -45,7 +45,10 @@
     <div class="feedback-subtitle" id="feedback-subtitle"></div>
     <div class="feedback-correct"  id="feedback-correct"></div>
 
-    <!-- TTS play button — stopPropagation so it doesn't advance to next question -->
+    <!-- Conjugation table (group exercise only) -->
+    <div id="conj-table-container" style="display:none"></div>
+
+    <!-- TTS play button (non-group exercises) -->
     <button id="tts-btn" class="tts-btn" onclick="event.stopPropagation(); playTTS()" aria-label="Hear pronunciation">
       🔊
     </button>

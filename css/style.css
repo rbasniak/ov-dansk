@@ -562,7 +562,68 @@ body {
   margin: 8px 0 28px;
 }
 
-/* ── Twemoji: make emoji images size like text ────────────── */
+/* ── Conjugation Table (group feedback) ───────────────────── */
+#conj-table-container {
+  width: 100%;
+  max-width: 340px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.12);
+  margin: 4px 0;
+}
+
+.conj-row {
+  display: grid;
+  grid-template-columns: 90px 1fr 44px;
+  align-items: center;
+  padding: 11px 14px;
+  gap: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.conj-row:last-child { border-bottom: none; }
+.conj-row:nth-child(odd)  { background: rgba(255,255,255,0.05); }
+.conj-row:nth-child(even) { background: rgba(255,255,255,0.02); }
+
+.conj-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: rgba(255,255,255,0.45);
+}
+
+.conj-value {
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.tts-mini {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.12s, transform 0.1s;
+  flex-shrink: 0;
+}
+.tts-mini:active {
+  background: rgba(255,255,255,0.22);
+  transform: scale(0.88);
+}
+
+.tts-mini-gap {
+  width: 36px;
+  height: 36px;
+  display: inline-block;
+}
+
+
 img.emoji {
   height: 1.1em;
   width: 1.1em;

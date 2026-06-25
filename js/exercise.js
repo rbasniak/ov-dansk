@@ -75,17 +75,19 @@ function makeDaToEnQuestion(verb, allVerbs) {
 }
 
 function makeGroupQuestion(verb) {
-  const options = shuffle([
-    { label: '-ede', value: 'ede' },
-    { label: '-te',  value: 'te' },
+  // Fixed order — always -te / -ede / Irregular
+  const options = [
+    { label: '-te',       value: 'te' },
+    { label: '-ede',      value: 'ede' },
     { label: 'Irregular', value: 'irregular' },
-  ]);
+  ];
   return {
     type: 'group',
     prompt: 'What group does this verb belong to?',
     question: verb.inf,
     correctValue: verb.group,
     danishVerb: verb.inf,
+    verbData: verb,
     options,
     hint: `Past: ${verb.past}`,
   };
@@ -138,12 +140,13 @@ function generateExercises(config) {
 
 let _ttsVerb = '';
 
-function playTTS() {
-  if (!window.speechSynthesis || !_ttsVerb) return;
+function playTTS(text) {
+  const speak = (text !== undefined && text !== '') ? text : _ttsVerb;
+  if (!window.speechSynthesis || !speak) return;
   window.speechSynthesis.cancel();
 
   const btn = document.getElementById('tts-btn');
-  const utter = new SpeechSynthesisUtterance(_ttsVerb);
+  const utter = new SpeechSynthesisUtterance(speak);
   utter.lang = 'da-DK';
   utter.rate = 0.85;
 
@@ -280,35 +283,63 @@ function handleAnswer(selectedValue, clickedBtn) {
 function showFeedback(isCorrect, q) {
   _ttsVerb = q.danishVerb || '';
 
-  const overlay = document.getElementById('feedback-overlay');
-  overlay.className = 'feedback-overlay ' + (isCorrect ? 'success' : 'failure');
+  const overlay       = document.getElementById('feedback-overlay');
+  overlay.className   = 'feedback-overlay ' + (isCorrect ? 'success' : 'failure');
 
-  document.getElementById('feedback-icon').textContent = isCorrect ? '✓' : '✗';
+  document.getElementById('feedback-icon').textContent  = isCorrect ? '✓' : '✗';
   document.getElementById('feedback-title').textContent = isCorrect ? 'Correct!' : 'Incorrect';
 
-  const correctEl = document.getElementById('feedback-correct');
-  const subtitleEl = document.getElementById('feedback-subtitle');
+  const correctEl     = document.getElementById('feedback-correct');
+  const subtitleEl    = document.getElementById('feedback-subtitle');
+  const conjContainer = document.getElementById('conj-table-container');
+  const ttsBtn        = document.getElementById('tts-btn');
+  const ttsLabel      = document.getElementById('tts-verb-label');
 
-  if (q.type === 'group') {
-    // For group exercise: always show the past tense as a hint
-    const correct = q.options.find(o => o.value === q.correctValue);
-    subtitleEl.textContent = q.hint || '';
-    correctEl.textContent = isCorrect ? '' : (correct ? correct.label : q.correctValue);
-  } else if (isCorrect) {
+  if (q.type === 'group' && q.verbData) {
+    // Show conjugation table; rows have their own TTS buttons
     subtitleEl.textContent = '';
-    correctEl.textContent = '';
+    correctEl.textContent  = isCorrect ? '' : ('→ ' + (q.options.find(o => o.value === q.correctValue) || {}).label);
+    if (ttsBtn)        ttsBtn.style.display        = 'none';
+    if (ttsLabel)      ttsLabel.style.display      = 'none';
+    if (conjContainer) {
+      conjContainer.style.display = 'block';
+      conjContainer.innerHTML     = buildConjTable(q.verbData);
+    }
   } else {
-    subtitleEl.textContent = 'The correct answer is:';
-    const correct = q.options.find(o => o.value === q.correctValue);
-    correctEl.textContent = correct ? correct.label : q.correctValue;
+    if (conjContainer) conjContainer.style.display = 'none';
+    if (state.audio) {
+      if (ttsBtn)   ttsBtn.style.display   = '';
+      if (ttsLabel) ttsLabel.style.display = '';
+    }
+    if (isCorrect) {
+      subtitleEl.textContent = '';
+      correctEl.textContent  = '';
+    } else {
+      subtitleEl.textContent = 'The correct answer is:';
+      const correct = q.options.find(o => o.value === q.correctValue);
+      correctEl.textContent  = correct ? correct.label : q.correctValue;
+    }
+    if (ttsLabel) ttsLabel.textContent = _ttsVerb;
   }
 
-  // Update TTS verb label
-  const ttsLabel = document.getElementById('tts-verb-label');
-  if (ttsLabel) ttsLabel.textContent = _ttsVerb;
-
-  // Autoplay when audio is enabled
   if (state.audio) playTTS();
+}
+
+function buildConjTable(v) {
+  const rows = [
+    { label: 'Infinitive', value: v.inf },
+    { label: 'Present',    value: v.present },
+    { label: 'Past',       value: v.past },
+    { label: 'Perfect',    value: v.perfect },
+    { label: 'Imperative', value: v.imp },
+  ];
+  return rows.map(r => {
+    const speakable = r.value && r.value !== '—';
+    const btn = speakable
+      ? `<button class="tts-mini" onclick="event.stopPropagation();playTTS('${r.value.replace(/'/g, "\\'")}')">🔊</button>`
+      : `<span class="tts-mini-gap"></span>`;
+    return `<div class="conj-row"><span class="conj-label">${r.label}</span><span class="conj-value">${r.value}</span>${btn}</div>`;
+  }).join('');
 }
 
 function nextQuestion() {
