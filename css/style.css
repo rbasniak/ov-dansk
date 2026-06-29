@@ -717,3 +717,75 @@ img.emoji {
   word-break: break-word;
   max-width: 300px;
 }
+
+/* ── Time Exercise ─────────────────────────────────────────── */
+
+/* SVG analog clock in answer buttons */
+.clock-svg {
+  width: 80px;
+  height: 80px;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Answer grid for clocks: 2x2, taller buttons */
+.answer-grid.clock-options {
+  grid-template-columns: 1fr 1fr;
+}
+.answer-grid.clock-options .answer-btn {
+  padding: 12px;
+  min-height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Digital display in answer button */
+.digital-clock {
+  font-family: 'Courier New', 'Lucida Console', monospace;
+  font-size: 28px;
+  font-weight: 700;
+  color: #4ade80;
+  background: #0a0f1a;
+  padding: 8px 14px;
+  border-radius: 8px;
+  letter-spacing: 2px;
+  border: 1px solid #1a2a1a;
+  display: inline-block;
+}
+.dc-colon {
+  animation: colon-blink 1s step-end infinite;
+}
+@keyframes colon-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+/* Answer grid for digital: 2x2 */
+.answer-grid.digital-options {
+  grid-template-columns: 1fr 1fr;
+}
+.answer-grid.digital-options .answer-btn {
+  padding: 14px 8px;
+  min-height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Feedback correct display (clock or digital) */
+.feedback-correct-display {
+  margin: 4px 0 8px;
+}
+.feedback-correct-display .clock-svg {
+  width: 120px;
+  height: 120px;
+}
+.feedback-correct-display .digital-clock {
+  font-size: 42px;
+  padding: 12px 20px;
+}
+/* Don't blink in feedback */
+.feedback-correct-display .dc-colon {
+  animation: none;
+}

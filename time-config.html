@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Time of Day – Configure | Danish Practice</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <div class="header">
+    <a href="index.html" class="back-btn" aria-label="Back">←</a>
+    <div>
+      <div class="page-title">Time of Day</div>
+    </div>
+  </div>
+
+  <p class="intro-text">Listen to a time said in Danish and pick the matching clock or display.</p>
+
+  <div class="section">
+    <div class="section-title">Number of Questions</div>
+    <div class="radio-group row" id="grp-count">
+
+      <label class="radio-option compact selected">
+        <input type="radio" name="count" value="10" checked />
+        <div class="radio-dot"></div>
+        <span class="radio-label">10</span>
+      </label>
+
+      <label class="radio-option compact">
+        <input type="radio" name="count" value="20" />
+        <div class="radio-dot"></div>
+        <span class="radio-label">20</span>
+      </label>
+
+      <label class="radio-option compact">
+        <input type="radio" name="count" value="50" />
+        <div class="radio-dot"></div>
+        <span class="radio-label">50</span>
+      </label>
+
+      <label class="radio-option compact disabled" title="Not available for time">
+        <input type="radio" name="count" value="all" disabled />
+        <div class="radio-dot"></div>
+        <span class="radio-label">ALL</span>
+      </label>
+
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Time per Question</div>
+    <div class="radio-group" id="grp-time">
+
+      <label class="radio-option selected">
+        <input type="radio" name="timelimit" value="0" checked />
+        <div class="radio-dot"></div>
+        <div class="radio-text">
+          <span class="radio-label">No limit</span>
+          <span class="radio-sublabel">Take as long as you need</span>
+        </div>
+      </label>
+
+      <label class="radio-option">
+        <input type="radio" name="timelimit" value="30" />
+        <div class="radio-dot"></div>
+        <div class="radio-text">
+          <span class="radio-label">30 seconds</span>
+        </div>
+      </label>
+
+      <label class="radio-option">
+        <input type="radio" name="timelimit" value="15" />
+        <div class="radio-dot"></div>
+        <div class="radio-text">
+          <span class="radio-label">15 seconds</span>
+          <span class="radio-sublabel">Challenge mode!</span>
+        </div>
+      </label>
+
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Audio</div>
+    <div class="radio-group" id="grp-audio">
+
+      <label class="radio-option selected">
+        <input type="radio" name="audio" value="on" checked />
+        <div class="radio-dot"></div>
+        <div class="radio-text">
+          <span class="radio-label">🔊 Audio on</span>
+          <span class="radio-sublabel">Auto-play the correct Danish time after each answer</span>
+        </div>
+      </label>
+
+      <label class="radio-option">
+        <input type="radio" name="audio" value="off" />
+        <div class="radio-dot"></div>
+        <div class="radio-text">
+          <span class="radio-label">🔇 Audio off</span>
+          <span class="radio-sublabel">No feedback audio after answering</span>
+        </div>
+      </label>
+
+    </div>
+  </div>
+
+  <button class="start-btn" onclick="startExercise()">Start Practice →</button>
+
+  <script>
+    document.querySelectorAll('.radio-group').forEach(group => {
+      group.querySelectorAll('.radio-option:not(.disabled)').forEach(opt => {
+        opt.addEventListener('click', () => {
+          const radio = opt.querySelector('input[type="radio"]');
+          if (!radio || radio.disabled) return;
+          radio.checked = true;
+          group.querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected'));
+          opt.classList.add('selected');
+        });
+      });
+    });
+
+    function startExercise() {
+      const get = name => {
+        const el = document.querySelector(`input[name="${name}"]:checked`);
+        return el ? el.value : null;
+      };
+      const config = {
+        count: get('count') || '10',
+        timeLimit: get('timelimit') || '0',
+        audio: get('audio') || 'on'
+      };
+      sessionStorage.setItem('timeConfig', JSON.stringify(config));
+      window.location.href = 'time-exercise.html';
+    }
+
+    twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
+  </script>
+</body>
+</html>
