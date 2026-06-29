@@ -51,12 +51,6 @@
     <div class="section-title">Number of Questions</div>
     <div class="radio-group row" id="grp-count">
 
-      <label class="radio-option compact">
-        <input type="radio" name="count" value="5" />
-        <div class="radio-dot"></div>
-        <span class="radio-label">5</span>
-      </label>
-
       <label class="radio-option compact selected">
         <input type="radio" name="count" value="10" checked />
         <div class="radio-dot"></div>
@@ -64,15 +58,21 @@
       </label>
 
       <label class="radio-option compact">
-        <input type="radio" name="count" value="15" />
-        <div class="radio-dot"></div>
-        <span class="radio-label">15</span>
-      </label>
-
-      <label class="radio-option compact">
         <input type="radio" name="count" value="20" />
         <div class="radio-dot"></div>
         <span class="radio-label">20</span>
+      </label>
+
+      <label class="radio-option compact">
+        <input type="radio" name="count" value="50" />
+        <div class="radio-dot"></div>
+        <span class="radio-label">50</span>
+      </label>
+
+      <label class="radio-option compact disabled" title="Not available for numbers">
+        <input type="radio" name="count" value="all" disabled />
+        <div class="radio-dot"></div>
+        <span class="radio-label">ALL</span>
       </label>
 
     </div>

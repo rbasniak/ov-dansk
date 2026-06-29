@@ -119,7 +119,7 @@ function balancedGroupVerbs(allVerbs, count) {
 
 function generateExercises(config) {
   const allVerbs = VERBS.slice(0, config.verbSet === 'top100' ? 100 : VERBS.length);
-  const count = parseInt(config.count, 10) || 10;
+  const count = config.count === 'all' ? allVerbs.length : (parseInt(config.count, 10) || 10);
   const type = config.exerciseType;
 
   let selectedVerbs;
