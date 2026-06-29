@@ -113,8 +113,11 @@
   </div>
 
   <!-- ── Audio ──────────────────────────────────────────────── -->
-  <div class="section">
+  <div class="section" id="section-audio">
     <div class="section-title">Audio</div>
+    <div id="audio-required-note" class="audio-required-note" style="display:none">
+      🔊 Audio is required for "Hear the number" — always on.
+    </div>
     <div class="radio-group" id="grp-audio">
 
       <label class="radio-option selected">
@@ -149,9 +152,34 @@
           radio.checked = true;
           group.querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected'));
           opt.classList.add('selected');
+
+          // When exercise type changes, lock/unlock audio section
+          if (radio.name === 'extype') updateAudioSection();
         });
       });
     });
+
+    function updateAudioSection() {
+      const type       = document.querySelector('input[name="extype"]:checked')?.value;
+      const isAudio    = type === 'audio-to-num';
+      const note       = document.getElementById('audio-required-note');
+      const grp        = document.getElementById('grp-audio');
+      note.style.display = isAudio ? 'block' : 'none';
+      grp.querySelectorAll('.radio-option').forEach(opt => {
+        if (isAudio) {
+          opt.classList.add('disabled');
+          const r = opt.querySelector('input[type="radio"]');
+          if (r) r.disabled = true;
+        } else {
+          opt.classList.remove('disabled');
+          const r = opt.querySelector('input[type="radio"]');
+          if (r) r.disabled = false;
+        }
+      });
+    }
+
+    // Run once on load to set initial state
+    updateAudioSection();
 
     function startExercise() {
       const get = name => {

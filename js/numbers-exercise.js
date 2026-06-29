@@ -116,7 +116,10 @@ function _nRenderQuestion() {
     audioArea.style.display   = 'flex';
     digitArea.style.display   = 'none';
     _ns.currentTTS = q.ttsText;
-    if (_ns.audio) setTimeout(() => _nPlayTTS(_ns.currentTTS), 350);
+    // Always autoplay for audio-to-num — the exercise requires hearing the number
+    const hintEl = document.getElementById('audio-tap-hint');
+    if (hintEl) hintEl.textContent = 'Tap to hear again';
+    setTimeout(() => _nPlayTTS(_ns.currentTTS), 350);
   } else {
     promptEl.textContent      = 'How is this number written in Danish?';
     audioArea.style.display   = 'none';
