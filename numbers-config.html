@@ -143,24 +143,16 @@
 
   <button class="start-btn" onclick="startExercise()">Start Practice →</button>
 
+  <script src="js/config-prefs.js"></script>
   <script>
-    document.querySelectorAll('.radio-group').forEach(group => {
-      group.querySelectorAll('.radio-option:not(.disabled)').forEach(opt => {
-        opt.addEventListener('click', () => {
-          const radio = opt.querySelector('input[type="radio"]');
-          if (!radio || radio.disabled) return;
-          radio.checked = true;
-          group.querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected'));
-          opt.classList.add('selected');
-
-          // When exercise type changes, lock/unlock audio section
-          if (radio.name === 'extype') updateAudioSection();
-        });
-      });
+    initRadioGroups((name) => {
+      if (name === 'extype') {
+        updateAudioSection();
+      }
     });
 
     function updateAudioSection() {
-      const type       = document.querySelector('input[name="extype"]:checked')?.value;
+      const type       = getRadioValue('extype');
       const isAudio    = type === 'audio-to-num';
       const note       = document.getElementById('audio-required-note');
       const grp        = document.getElementById('grp-audio');
@@ -169,33 +161,50 @@
         if (isAudio) {
           opt.classList.add('disabled');
           const r = opt.querySelector('input[type="radio"]');
-          if (r) r.disabled = true;
+          if (r) {
+            r.disabled = true;
+          }
         } else {
           opt.classList.remove('disabled');
           const r = opt.querySelector('input[type="radio"]');
-          if (r) r.disabled = false;
+          if (r) {
+            r.disabled = false;
+          }
         }
       });
+      if (isAudio) {
+        setRadioValue('audio', 'on');
+      }
     }
 
-    // Run once on load to set initial state
-    updateAudioSection();
+    function loadNumberPrefs() {
+      const prefs = loadConfigPrefs(CONFIG_PREFS_KEYS.numbers);
+      applyCommonExercisePrefs(prefs, [
+        { name: 'extype', key: 'exerciseType' },
+        'count',
+        { name: 'timelimit', key: 'timeLimit' },
+        'audio',
+      ]);
+      updateAudioSection();
+    }
 
     function startExercise() {
-      const get = name => {
-        const el = document.querySelector(`input[name="${name}"]:checked`);
-        return el ? el.value : null;
-      };
       const config = {
-        exerciseType: get('extype')    || 'audio-to-num',
-        count:        get('count')     || '10',
-        timeLimit:    get('timelimit') || '0',
-        audio:        get('audio')     || 'on',
+        exerciseType: getRadioValue('extype')    || 'audio-to-num',
+        count:        getRadioValue('count')     || '10',
+        timeLimit:    getRadioValue('timelimit') || '0',
+        audio:        getRadioValue('audio')     || 'on',
       };
+      if (config.exerciseType === 'audio-to-num') {
+        config.audio = 'on';
+      }
+
+      saveConfigPrefs(CONFIG_PREFS_KEYS.numbers, config);
       sessionStorage.setItem('numberConfig', JSON.stringify(config));
       window.location.href = 'numbers-exercise.html';
     }
 
+    loadNumberPrefs();
     twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
   </script>
 </body>

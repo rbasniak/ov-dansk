@@ -172,18 +172,31 @@
   <button class="start-btn" id="start-btn" onclick="startExercise()">Start Practice →</button>
 
   <script src="js/nouns-data.js"></script>
+  <script src="js/config-prefs.js"></script>
   <script>
-    function buildCategoryOptions() {
+    function buildCategoryOptions(selectedIds) {
+      const validIds = new Set(NOUN_CATEGORIES.map(c => c.id));
+      let selected = null;
+      if (Array.isArray(selectedIds)) {
+        const filtered = selectedIds.filter(id => validIds.has(id));
+        if (filtered.length > 0) {
+          selected = new Set(filtered);
+        }
+      }
+
       const group = document.getElementById('grp-category');
-      group.innerHTML = NOUN_CATEGORIES.map((cat, i) => `
-        <label class="checkbox-option${i === 0 ? ' selected' : ''}">
-          <input type="checkbox" name="category" value="${cat.id}"${i === 0 ? ' checked' : ''} />
+      group.innerHTML = NOUN_CATEGORIES.map((cat, i) => {
+        const checked = selected ? selected.has(cat.id) : i === 0;
+        return `
+        <label class="checkbox-option${checked ? ' selected' : ''}">
+          <input type="checkbox" name="category" value="${cat.id}"${checked ? ' checked' : ''} />
           <div class="checkbox-box"></div>
           <div class="radio-text">
             <span class="radio-label">${cat.emoji} ${cat.label}</span>
           </div>
         </label>
-      `).join('');
+      `;
+      }).join('');
 
       group.querySelectorAll('.checkbox-option').forEach(opt => {
         const checkbox = opt.querySelector('input[type="checkbox"]');
@@ -204,19 +217,18 @@
       });
     }
 
-    document.querySelectorAll('.radio-group').forEach(group => {
-      group.querySelectorAll('.radio-option:not(.disabled)').forEach(opt => {
-        opt.addEventListener('click', () => {
-          const radio = opt.querySelector('input[type="radio"]');
-          if (!radio || radio.disabled) {
-            return;
-          }
-          radio.checked = true;
-          group.querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected'));
-          opt.classList.add('selected');
-        });
-      });
-    });
+    function loadNounPrefs() {
+      const prefs = loadConfigPrefs(CONFIG_PREFS_KEYS.nouns);
+      buildCategoryOptions(prefs?.categories);
+      applyCommonExercisePrefs(prefs, [
+        { name: 'extype', key: 'exerciseType' },
+        'count',
+        { name: 'timelimit', key: 'timeLimit' },
+        'audio',
+      ]);
+    }
+
+    initRadioGroups();
 
     document.getElementById('select-all-categories').addEventListener('click', () => {
       setAllCategories(true);
@@ -226,13 +238,7 @@
     });
 
     function startExercise() {
-      const get = name => {
-        const el = document.querySelector(`input[name="${name}"]:checked`);
-        return el ? el.value : null;
-      };
-
-      const categories = [...document.querySelectorAll('input[name="category"]:checked')]
-        .map(el => el.value);
+      const categories = getCheckboxValues('category');
 
       if (categories.length === 0) {
         alert('Please select at least one category.');
@@ -241,17 +247,18 @@
 
       const config = {
         categories,
-        exerciseType: get('extype')    || 'en-to-da',
-        count:        get('count')     || '10',
-        timeLimit:    get('timelimit') || '0',
-        audio:        get('audio')     || 'on',
+        exerciseType: getRadioValue('extype')    || 'en-to-da',
+        count:        getRadioValue('count')     || '10',
+        timeLimit:    getRadioValue('timelimit') || '0',
+        audio:        getRadioValue('audio')     || 'on',
       };
 
+      saveConfigPrefs(CONFIG_PREFS_KEYS.nouns, config);
       sessionStorage.setItem('nounConfig', JSON.stringify(config));
       window.location.href = 'nouns-exercise.html';
     }
 
-    buildCategoryOptions();
+    loadNounPrefs();
     twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
   </script>
 </body>
