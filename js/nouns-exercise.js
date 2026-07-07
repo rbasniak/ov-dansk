@@ -181,8 +181,8 @@ function _nBuildPronunciationItems(nouns) {
   return items;
 }
 
-function _nGenerateExercises(config) {
-  const pool = _nFilterPool(config);
+function _nGenerateExercises(config, overridePool) {
+  const pool  = overridePool || _nFilterPool(config);
   const type  = config.exerciseType;
   const count = config.count === 'all' ? pool.length : (parseInt(config.count, 10) || 10);
 
@@ -281,25 +281,79 @@ let _nState = {
   exercises:     [],
   index:         0,
   score:         0,
+  dontKnowCount: 0,
   answered:      false,
   timerInterval: null,
   timeLeft:      0,
   totalTime:     0,
   audio:         true,
+  practiceMode:  null,
+  subject:       'nouns',
 };
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 
-function initNounsExercise() {
+async function initNounsExercise() {
   const raw = sessionStorage.getItem('nounConfig');
   if (!raw) { window.location.href = 'nouns-config.html'; return; }
 
-  const config        = JSON.parse(raw);
-  _nState.exercises   = _nGenerateExercises(config);
-  _nState.index       = 0;
-  _nState.score       = 0;
-  _nState.totalTime   = config.timeLimit ? parseInt(config.timeLimit, 10) : 0;
-  _nState.audio       = config.audio !== 'off';
+  const config           = JSON.parse(raw);
+  _nState.index          = 0;
+  _nState.score          = 0;
+  _nState.dontKnowCount  = 0;
+  _nState.totalTime      = config.timeLimit ? parseInt(config.timeLimit, 10) : 0;
+  _nState.audio          = config.audio !== 'off';
+  _nState.practiceMode   = config.practiceMode || null;
+
+  const useAdaptive = config.practiceMode &&
+                      typeof isLoggedIn === 'function' && isLoggedIn();
+
+  if (config.exerciseType === 'pronunciation') {
+    const allItems = _nBuildPronunciationItems(_nFilterPool(config));
+    if (useAdaptive) {
+      const count       = config.count === 'all' ? Infinity : (parseInt(config.count, 10) || 10);
+      const progressMap = await loadProgress('nouns');
+      const selected    = selectAdaptiveItems(allItems, progressMap, config.practiceMode, count);
+      if (selected.length === 0) { _nShowEmptyState(config.practiceMode); return; }
+      _nState.exercises = selected.map(item => ({
+        type:         'pronunciation',
+        itemId:       item.id,
+        prompt:       item.formName,
+        question:     item.form,
+        danishWord:   item.form,
+        nounData:     item.noun,
+        correctValue: 'correct',
+        options: [
+          { label: '✓  Got it right',        value: 'correct' },
+          { label: '✗  Needs more practice', value: 'wrong'   },
+        ],
+      }));
+    } else {
+      const count = config.count === 'all' ? allItems.length : (parseInt(config.count, 10) || 10);
+      _nState.exercises = _nShuffle(allItems).slice(0, count).map(item => ({
+        type:         'pronunciation',
+        itemId:       item.id,
+        prompt:       item.formName,
+        question:     item.form,
+        danishWord:   item.form,
+        nounData:     item.noun,
+        correctValue: 'correct',
+        options: [
+          { label: '✓  Got it right',        value: 'correct' },
+          { label: '✗  Needs more practice', value: 'wrong'   },
+        ],
+      }));
+    }
+  } else if (useAdaptive) {
+    const pool        = _nFilterPool(config);
+    const count       = config.count === 'all' ? Infinity : (parseInt(config.count, 10) || 10);
+    const progressMap = await loadProgress('nouns');
+    const selected    = selectAdaptiveItems(pool, progressMap, config.practiceMode, count);
+    if (selected.length === 0) { _nShowEmptyState(config.practiceMode); return; }
+    _nState.exercises = _nGenerateExercises(config, selected);
+  } else {
+    _nState.exercises = _nGenerateExercises(config);
+  }
 
   const ttsBtn   = document.getElementById('tts-btn');
   const ttsLabel = document.getElementById('tts-noun-label');
@@ -324,6 +378,13 @@ function _nRenderQuestion() {
   // Question
   document.getElementById('question-prompt').textContent = q.prompt;
   document.getElementById('question-text').textContent   = q.question;
+
+  // Don't Know button — logged-in only, not for pronunciation
+  const dkContainer = document.getElementById('dont-know-container');
+  if (dkContainer) {
+    dkContainer.style.display =
+      (q.type !== 'pronunciation' && typeof isLoggedIn === 'function' && isLoggedIn()) ? '' : 'none';
+  }
 
   // Answer buttons
   const grid = document.getElementById('answer-grid');
@@ -401,8 +462,16 @@ function _nHandleAnswer(selectedValue, clickedBtn) {
   clearInterval(_nState.timerInterval);
 
   const q         = _nState.exercises[_nState.index];
-  const isCorrect = selectedValue === q.correctValue;
+  const isTimeout = selectedValue === null && clickedBtn === null;
+  const isCorrect = !isTimeout && selectedValue === q.correctValue;
   if (isCorrect) _nState.score++;
+
+  // Record to Firestore
+  if (typeof recordAnswer === 'function' && typeof isLoggedIn === 'function' &&
+      isLoggedIn() && q.itemId) {
+    const resultType = isTimeout ? 'timeout' : (isCorrect ? 'correct' : 'wrong');
+    recordAnswer(_nState.subject, q.itemId, resultType).catch(console.error);
+  }
 
   document.querySelectorAll('.answer-btn').forEach(btn => {
     btn.disabled = true;
@@ -416,20 +485,37 @@ function _nHandleAnswer(selectedValue, clickedBtn) {
   setTimeout(() => _nShowFeedback(isCorrect, q), 500);
 }
 
+function _nHandleDontKnow() {
+  if (_nState.answered) return;
+  _nState.answered = true;
+  clearInterval(_nState.timerInterval);
+  _nState.dontKnowCount++;
+
+  const q = _nState.exercises[_nState.index];
+  document.querySelectorAll('.answer-btn').forEach(btn => { btn.disabled = true; });
+
+  if (typeof recordAnswer === 'function' && typeof isLoggedIn === 'function' &&
+      isLoggedIn() && q.itemId) {
+    recordAnswer(_nState.subject, q.itemId, 'dont_know').catch(console.error);
+  }
+
+  setTimeout(() => _nShowFeedback(false, q, true), 300);
+}
+
 // ─── Show Feedback ────────────────────────────────────────────────────────────
 
-function _nShowFeedback(isCorrect, q) {
+function _nShowFeedback(isCorrect, q, isDontKnow = false) {
   _nCurrentWord = q.danishWord || '';
 
   const overlay     = document.getElementById('feedback-overlay');
   overlay.className = 'feedback-overlay ' + (isCorrect ? 'success' : 'failure');
 
-  document.getElementById('feedback-icon').textContent  = isCorrect ? '✓' : '✗';
+  document.getElementById('feedback-icon').textContent = isCorrect ? '✓' : (isDontKnow ? '💡' : '✗');
 
   if (q.type === 'pronunciation') {
     document.getElementById('feedback-title').textContent = isCorrect ? 'Great work!' : 'Keep practicing!';
   } else {
-    document.getElementById('feedback-title').textContent = isCorrect ? 'Correct!' : 'Incorrect';
+    document.getElementById('feedback-title').textContent = isCorrect ? 'Correct!' : (isDontKnow ? "Let's learn!" : 'Incorrect');
   }
 
   const subtitleEl    = document.getElementById('feedback-subtitle');
@@ -488,8 +574,9 @@ function _nShowSummary() {
   const summary = document.getElementById('summary-view');
   summary.style.display = 'flex';
 
-  const total = _nState.exercises.length;
-  const pct   = Math.round((_nState.score / total) * 100);
+  const total      = _nState.exercises.length;
+  const wrongCount = total - _nState.score - _nState.dontKnowCount;
+  const pct        = Math.round((_nState.score / total) * 100);
 
   document.getElementById('score-number').textContent = _nState.score;
   document.getElementById('score-total').textContent  = '/ ' + total;
@@ -503,4 +590,40 @@ function _nShowSummary() {
   else                msg = '💪 Don\'t give up!';
 
   document.getElementById('summary-msg').textContent = msg;
+
+  // Session breakdown — logged-in users only
+  const breakdown = document.getElementById('session-breakdown');
+  if (breakdown && typeof isLoggedIn === 'function' && isLoggedIn()) {
+    breakdown.style.display = '';
+    const dkHtml = _nState.dontKnowCount > 0
+      ? `<span class="breakdown-item dk-item">💡 ${_nState.dontKnowCount} don't know</span>`
+      : '';
+    breakdown.innerHTML = `
+      <div class="breakdown-row">
+        <span class="breakdown-item correct-item">✓ ${_nState.score} correct</span>
+        <span class="breakdown-item wrong-item">✗ ${wrongCount} wrong</span>
+        ${dkHtml}
+      </div>
+      <p class="breakdown-note">Progress saved ✓</p>
+    `;
+  } else if (breakdown) {
+    breakdown.style.display = 'none';
+  }
+}
+
+function _nShowEmptyState(mode) {
+  document.getElementById('exercise-view').style.display = 'none';
+
+  const emptyView = document.getElementById('empty-state-view');
+  emptyView.style.display = 'flex';
+
+  if (mode === 'review') {
+    document.getElementById('empty-icon').textContent = '🎉';
+    document.getElementById('empty-msg').textContent  =
+      'Nothing to review right now! Come back later or switch to Learn mode.';
+  } else {
+    document.getElementById('empty-icon').textContent = '🌱';
+    document.getElementById('empty-msg').textContent  =
+      'No new items left in this set. Switch to Review or Mixed mode.';
+  }
 }

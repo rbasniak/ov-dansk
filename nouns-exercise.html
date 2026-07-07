@@ -7,6 +7,11 @@
   <title>Nouns Exercise | Danish Practice</title>
   <link rel="stylesheet" href="css/style.css" />
   <script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
+  <!-- Firebase v8 compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="js/firebase.js"></script>
 </head>
 <body>
 
@@ -35,6 +40,11 @@
 
     <!-- Answer buttons (built dynamically) -->
     <div class="answer-grid" id="answer-grid"></div>
+
+    <!-- Don't Know button — visible only when logged in -->
+    <div id="dont-know-container" style="display:none">
+      <button class="dont-know-btn" onclick="_nHandleDontKnow()">💡 I don't know</button>
+    </div>
 
   </div><!-- /exercise-view -->
 
@@ -75,6 +85,9 @@
       <div class="score-pct" id="score-pct">0%</div>
       <div class="summary-msg" id="summary-msg"></div>
 
+      <!-- Session breakdown shown for logged-in users -->
+      <div id="session-breakdown" style="display:none"></div>
+
       <div class="summary-actions">
         <button class="start-btn" onclick="playAgain()">Play Again →</button>
         <a href="nouns-config.html" class="btn-secondary">Change Settings</a>
@@ -84,13 +97,37 @@
     </div>
   </div><!-- /summary-view -->
 
+  <!-- ── Empty State (adaptive mode, no items available) ──── -->
+  <div id="empty-state-view" style="display:none;flex-direction:column">
+    <div class="header" style="padding-top:20px">
+      <a href="nouns-config.html" class="back-btn" aria-label="Back">←</a>
+      <div class="page-title">All caught up!</div>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:18px;padding:24px 0 40px">
+      <div id="empty-icon" style="font-size:72px">🎯</div>
+      <div class="summary-msg" id="empty-msg"></div>
+      <div class="summary-actions">
+        <a href="nouns-config.html" class="btn-secondary">Change Settings</a>
+        <a href="index.html"        class="btn-secondary">Home</a>
+      </div>
+    </div>
+  </div><!-- /empty-state-view -->
+
   <!-- Data + Logic -->
   <script src="js/nouns-data.js"></script>
   <script src="js/nouns-exercise.js"></script>
   <script>
     window.addEventListener('load', () => {
-      initNounsExercise();
       twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
+
+      let started = false;
+      const start = () => { if (!started) { started = true; initNounsExercise(); } };
+
+      if (typeof initAuth === 'function') {
+        initAuth(() => start(), () => start());
+      } else {
+        start();
+      }
     });
 
     function confirmBack() {
