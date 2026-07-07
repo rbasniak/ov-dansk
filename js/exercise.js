@@ -53,8 +53,7 @@ function makeEnToDaQuestion(verb, allVerbs) {
   const options = shuffle([verb, ...distractors]);
   return {
     type: 'en-to-da',
-    itemId: verb.inf,
-    prompt: 'Which Danish verb matches?',
+    itemId: verb.inf + '_en-to-da',
     question: verb.meaning,
     correctValue: verb.inf,
     danishVerb: verb.inf,
@@ -67,8 +66,7 @@ function makeDaToEnQuestion(verb, allVerbs) {
   const options = shuffle([verb, ...distractors]);
   return {
     type: 'da-to-en',
-    itemId: verb.inf,
-    prompt: 'What does this verb mean?',
+    itemId: verb.inf + '_da-to-en',
     question: verb.inf,
     correctValue: verb.meaning,
     danishVerb: verb.inf,
@@ -85,8 +83,7 @@ function makeGroupQuestion(verb) {
   ];
   return {
     type: 'group',
-    itemId: verb.inf,
-    prompt: 'What group does this verb belong to?',
+    itemId: verb.inf + '_group',
     question: verb.inf,
     correctValue: verb.group,
     danishVerb: verb.inf,
@@ -483,7 +480,7 @@ function buildPronunciationItems(verbs) {
     for (const t of PRONUNCIATION_TENSES) {
       const form = verb[t.key];
       if (!form || form === '—') continue;
-      items.push({ id: `${verb.inf}_${t.key}`, form, tenseName: t.name, verb });
+      items.push({ id: `${verb.inf}_pronunciation_${t.key}`, form, tenseName: t.name, verb });
     }
   }
   return items;

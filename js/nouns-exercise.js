@@ -35,6 +35,7 @@ function _nMakeEnToDaQuestion(noun, pool) {
   const options = _nShuffle([noun, ...distractors]);
   return {
     type: 'en-to-da',
+    itemId: noun.da + '_en-to-da',
     prompt: 'Which Danish noun matches?',
     question: noun.meaning,
     correctValue: noun.da,
@@ -49,6 +50,7 @@ function _nMakeDaToEnQuestion(noun, pool) {
   const options = _nShuffle([noun, ...distractors]);
   return {
     type: 'da-to-en',
+    itemId: noun.da + '_da-to-en',
     prompt: 'What does this noun mean?',
     question: noun.da,
     correctValue: noun.meaning,
@@ -66,6 +68,7 @@ function _nMakeGenderQuestion(noun) {
   ];
   return {
     type: 'gender',
+    itemId: noun.da + '_gender',
     prompt: 'What is the gender of this noun?',
     question: noun.da,
     correctValue: noun.gender,
@@ -85,6 +88,7 @@ function _nMakePluralClassQuestion(noun) {
   ];
   return {
     type: 'plural-class',
+    itemId: noun.da + '_plural-class',
     prompt: 'What plural class does this noun belong to?',
     question: noun.da,
     correctValue: noun.pluralClass,
@@ -171,7 +175,7 @@ function _nBuildPronunciationItems(nouns) {
     for (const f of _NOUN_PRONUNCIATION_FORMS) {
       const form = noun[f.key];
       if (!form) continue;
-      items.push({ id: `${noun.da}_${f.key}`, form, formName: f.name, noun });
+      items.push({ id: `${noun.da}_pronunciation_${f.key}`, form, formName: f.name, noun });
     }
   }
   return items;
