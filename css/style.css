@@ -737,6 +737,20 @@ body {
 }
 
 
+/* ── Pronunciation play button ────────────────────────────── */
+.pronunciation-play-btn {
+  grid-column: 1 / -1;
+  font-size: 18px;
+  min-height: 88px;
+  border-color: var(--primary);
+  color: var(--primary);
+  letter-spacing: 0.2px;
+}
+.pronunciation-play-btn:active {
+  border-color: var(--primary-dark);
+  background: rgba(59,130,246,0.1);
+}
+
 /* ── Auth Button ──────────────────────────────────────────── */
 .auth-btn {
   display: inline-flex;

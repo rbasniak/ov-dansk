@@ -156,10 +156,49 @@ function _nFilterPool(config) {
 
 // ─── Generate Exercise Session ────────────────────────────────────────────────
 
+const _NOUN_PRONUNCIATION_FORMS = [
+  { key: 'da',         name: 'Indefinite'    },
+  { key: 'definiteSg', name: 'Definite'      },
+  { key: 'plural',     name: 'Plural'        },
+  { key: 'definitePl', name: 'Definite pl.'  },
+];
+
+// Expands nouns into individual pronunciation items — one per form that exists.
+// Mass nouns (null plural/definitePl) produce only 2 items instead of 4.
+function _nBuildPronunciationItems(nouns) {
+  const items = [];
+  for (const noun of nouns) {
+    for (const f of _NOUN_PRONUNCIATION_FORMS) {
+      const form = noun[f.key];
+      if (!form) continue;
+      items.push({ id: `${noun.da}_${f.key}`, form, formName: f.name, noun });
+    }
+  }
+  return items;
+}
+
 function _nGenerateExercises(config) {
   const pool = _nFilterPool(config);
   const type  = config.exerciseType;
   const count = config.count === 'all' ? pool.length : (parseInt(config.count, 10) || 10);
+
+  if (type === 'pronunciation') {
+    const items = _nBuildPronunciationItems(pool);
+    const n     = config.count === 'all' ? items.length : (parseInt(config.count, 10) || 10);
+    return _nShuffle(items).slice(0, n).map(item => ({
+      type:         'pronunciation',
+      itemId:       item.id,
+      prompt:       item.formName,
+      question:     item.form,
+      danishWord:   item.form,
+      nounData:     item.noun,
+      correctValue: 'correct',
+      options: [
+        { label: '✓  Got it right',        value: 'correct' },
+        { label: '✗  Needs more practice', value: 'wrong'   },
+      ],
+    }));
+  }
 
   let selected;
   if (type === 'gender') {
@@ -285,19 +324,41 @@ function _nRenderQuestion() {
   // Answer buttons
   const grid = document.getElementById('answer-grid');
   grid.innerHTML = '';
-  grid.className = 'answer-grid'
-    + (q.options.length === 2 ? ' two-options'  : '')
-    + (q.options.length === 3 ? ' three-options' : '')
-    + (q.options.length === 5 ? ' five-options'  : '');
 
-  q.options.forEach(opt => {
-    const btn = document.createElement('button');
-    btn.className = 'answer-btn';
-    btn.textContent = opt.label;
-    btn.dataset.value = opt.value;
-    btn.addEventListener('click', () => _nHandleAnswer(opt.value, btn));
-    grid.appendChild(btn);
-  });
+  if (q.type === 'pronunciation') {
+    grid.className = 'answer-grid';
+    const playBtn = document.createElement('button');
+    playBtn.className = 'answer-btn pronunciation-play-btn';
+    playBtn.innerHTML = '🔊 &nbsp;Tap to hear, then judge yourself';
+    playBtn.addEventListener('click', () => {
+      _nPlayTTS(q.danishWord);
+      grid.innerHTML = '';
+      grid.className = 'answer-grid three-options';
+      q.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'answer-btn';
+        btn.textContent = opt.label;
+        btn.dataset.value = opt.value;
+        btn.addEventListener('click', () => _nHandleAnswer(opt.value, btn));
+        grid.appendChild(btn);
+      });
+    });
+    grid.appendChild(playBtn);
+  } else {
+    grid.className = 'answer-grid'
+      + (q.options.length === 2 ? ' two-options'  : '')
+      + (q.options.length === 3 ? ' three-options' : '')
+      + (q.options.length === 5 ? ' five-options'  : '');
+
+    q.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'answer-btn';
+      btn.textContent = opt.label;
+      btn.dataset.value = opt.value;
+      btn.addEventListener('click', () => _nHandleAnswer(opt.value, btn));
+      grid.appendChild(btn);
+    });
+  }
 
   // Timer
   clearInterval(_nState.timerInterval);
@@ -360,7 +421,12 @@ function _nShowFeedback(isCorrect, q) {
   overlay.className = 'feedback-overlay ' + (isCorrect ? 'success' : 'failure');
 
   document.getElementById('feedback-icon').textContent  = isCorrect ? '✓' : '✗';
-  document.getElementById('feedback-title').textContent = isCorrect ? 'Correct!' : 'Incorrect';
+
+  if (q.type === 'pronunciation') {
+    document.getElementById('feedback-title').textContent = isCorrect ? 'Great work!' : 'Keep practicing!';
+  } else {
+    document.getElementById('feedback-title').textContent = isCorrect ? 'Correct!' : 'Incorrect';
+  }
 
   const subtitleEl    = document.getElementById('feedback-subtitle');
   const correctEl     = document.getElementById('feedback-correct');
@@ -368,11 +434,14 @@ function _nShowFeedback(isCorrect, q) {
   const ttsBtn        = document.getElementById('tts-btn');
   const ttsLabel      = document.getElementById('tts-noun-label');
 
-  // Always show the noun info card
+  // Always show the noun info card (all 4 forms + TTS per row — great for pronunciation too)
   infoContainer.style.display = 'block';
   infoContainer.innerHTML     = _nBuildInfoCard(q.nounData);
 
-  if (isCorrect) {
+  if (q.type === 'pronunciation') {
+    subtitleEl.textContent = isCorrect ? '' : 'Listen again and study the forms:';
+    correctEl.textContent  = '';
+  } else if (isCorrect) {
     subtitleEl.textContent = '';
     correctEl.textContent  = '';
   } else {

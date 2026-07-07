@@ -205,7 +205,20 @@ async function initExercise() {
   const useAdaptive = config.practiceMode &&
                       typeof isLoggedIn === 'function' && isLoggedIn();
 
-  if (useAdaptive) {
+  if (config.exerciseType === 'pronunciation') {
+    // Expand verbs into per-tense pronunciation items, then select
+    const allPronItems = buildPronunciationItems(allVerbs);
+    if (useAdaptive) {
+      const count       = config.count === 'all' ? Infinity : (parseInt(config.count, 10) || 10);
+      const progressMap = await loadProgress('verbs');
+      const selected    = selectAdaptiveItems(allPronItems, progressMap, config.practiceMode, count);
+      if (selected.length === 0) { showEmptyState(config.practiceMode); return; }
+      state.exercises = selected.map(item => makePronunciationQuestion(item));
+    } else {
+      const count = config.count === 'all' ? allPronItems.length : (parseInt(config.count, 10) || 10);
+      state.exercises = shuffle(allPronItems).slice(0, count).map(item => makePronunciationQuestion(item));
+    }
+  } else if (useAdaptive) {
     const count       = config.count === 'all' ? Infinity : (parseInt(config.count, 10) || 10);
     const progressMap = await loadProgress('verbs');
     const selected    = selectAdaptiveItems(allVerbs, progressMap, config.practiceMode, count);
@@ -246,26 +259,51 @@ function renderQuestion() {
   const hintEl = document.getElementById('question-hint');
   if (hintEl) hintEl.style.display = 'none';
 
-  // Don't Know button — only for logged-in users
+  // Don't Know button — only for logged-in users on non-pronunciation questions
+  // (pronunciation already provides self-assessment options)
   const dkContainer = document.getElementById('dont-know-container');
   if (dkContainer) {
     dkContainer.style.display =
-      (typeof isLoggedIn === 'function' && isLoggedIn()) ? '' : 'none';
+      (q.type !== 'pronunciation' && typeof isLoggedIn === 'function' && isLoggedIn()) ? '' : 'none';
   }
 
   // Answer buttons
   const grid = document.getElementById('answer-grid');
   grid.innerHTML = '';
-  grid.className = 'answer-grid' + (q.options.length === 3 ? ' three-options' : '');
 
-  q.options.forEach(opt => {
-    const btn = document.createElement('button');
-    btn.className = 'answer-btn';
-    btn.textContent = opt.label;
-    btn.dataset.value = opt.value;
-    btn.addEventListener('click', () => handleAnswer(opt.value, btn));
-    grid.appendChild(btn);
-  });
+  if (q.type === 'pronunciation') {
+    // Phase 1: single "Hear it" button. Clicking plays TTS and reveals
+    // the two self-assessment options.
+    grid.className = 'answer-grid';
+    const playBtn = document.createElement('button');
+    playBtn.className = 'answer-btn pronunciation-play-btn';
+    playBtn.innerHTML = '🔊 &nbsp;Tap to hear, then judge yourself';
+    playBtn.addEventListener('click', () => {
+      playTTS(q.danishVerb);
+      // Phase 2: replace with self-assessment options
+      grid.innerHTML = '';
+      grid.className = 'answer-grid three-options';
+      q.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'answer-btn';
+        btn.textContent = opt.label;
+        btn.dataset.value = opt.value;
+        btn.addEventListener('click', () => handleAnswer(opt.value, btn));
+        grid.appendChild(btn);
+      });
+    });
+    grid.appendChild(playBtn);
+  } else {
+    grid.className = 'answer-grid' + (q.options.length === 3 ? ' three-options' : '');
+    q.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'answer-btn';
+      btn.textContent = opt.label;
+      btn.dataset.value = opt.value;
+      btn.addEventListener('click', () => handleAnswer(opt.value, btn));
+      grid.appendChild(btn);
+    });
+  }
 
   // Timer
   clearInterval(state.timerInterval);
@@ -354,7 +392,13 @@ function showFeedback(isCorrect, q, isDontKnow = false) {
   overlay.className   = 'feedback-overlay ' + (isCorrect ? 'success' : 'failure');
 
   document.getElementById('feedback-icon').textContent  = isCorrect ? '✓' : (isDontKnow ? '💡' : '✗');
-  document.getElementById('feedback-title').textContent = isCorrect ? 'Correct!' : (isDontKnow ? "Let's learn!" : 'Incorrect');
+
+  // Pronunciation: icon/title reflect self-assessment, not a "right/wrong" judgment
+  if (q.type === 'pronunciation') {
+    document.getElementById('feedback-title').textContent = isCorrect ? 'Great work!' : 'Keep practicing!';
+  } else {
+    document.getElementById('feedback-title').textContent = isCorrect ? 'Correct!' : (isDontKnow ? "Let's learn!" : 'Incorrect');
+  }
 
   const correctEl     = document.getElementById('feedback-correct');
   const subtitleEl    = document.getElementById('feedback-subtitle');
@@ -362,7 +406,17 @@ function showFeedback(isCorrect, q, isDontKnow = false) {
   const ttsBtn        = document.getElementById('tts-btn');
   const ttsLabel      = document.getElementById('tts-verb-label');
 
-  if (q.type === 'group' && q.verbData) {
+  if (q.type === 'pronunciation') {
+    // Show the word and replay TTS — no "correct answer" text needed
+    if (conjContainer) conjContainer.style.display = 'none';
+    subtitleEl.textContent = isCorrect ? '' : 'Listen again and practice:';
+    correctEl.textContent  = '';
+    if (state.audio) {
+      if (ttsBtn)   ttsBtn.style.display   = '';
+      if (ttsLabel) ttsLabel.style.display = '';
+    }
+    if (ttsLabel) ttsLabel.textContent = _ttsVerb;
+  } else if (q.type === 'group' && q.verbData) {
     // Show conjugation table; rows have their own TTS buttons
     subtitleEl.textContent = '';
     correctEl.textContent  = isCorrect ? '' : ('→ ' + (q.options.find(o => o.value === q.correctValue) || {}).label);
@@ -395,10 +449,10 @@ function showFeedback(isCorrect, q, isDontKnow = false) {
 function buildConjTable(v) {
   const rows = [
     { label: 'Infinitive', value: v.inf },
+    { label: 'Imperative', value: v.imp },
     { label: 'Present',    value: v.present },
     { label: 'Past',       value: v.past },
     { label: 'Perfect',    value: v.perfect },
-    { label: 'Imperative', value: v.imp },
   ];
   return rows.map(r => {
     const speakable = r.value && r.value !== '—';
@@ -407,6 +461,47 @@ function buildConjTable(v) {
       : `<span class="tts-mini-gap"></span>`;
     return `<div class="conj-row"><span class="conj-label">${r.label}</span><span class="conj-value">${r.value}</span>${btn}</div>`;
   }).join('');
+}
+
+// ─── Pronunciation exercise helpers ──────────────────────────────────────────
+
+// Expands an array of verb objects into individual pronunciation items —
+// one item per tense form that exists (skips '—' forms).
+// Returns objects with { id, form, tenseName, verb } used by adaptive pool
+// and makePronunciationQuestion.
+const PRONUNCIATION_TENSES = [
+  { key: 'inf',     name: 'Infinitive' },
+  { key: 'imp',     name: 'Imperative' },
+  { key: 'present', name: 'Present'    },
+  { key: 'past',    name: 'Past'       },
+  { key: 'perfect', name: 'Perfect'    },
+];
+
+function buildPronunciationItems(verbs) {
+  const items = [];
+  for (const verb of verbs) {
+    for (const t of PRONUNCIATION_TENSES) {
+      const form = verb[t.key];
+      if (!form || form === '—') continue;
+      items.push({ id: `${verb.inf}_${t.key}`, form, tenseName: t.name, verb });
+    }
+  }
+  return items;
+}
+
+function makePronunciationQuestion(item) {
+  return {
+    type:         'pronunciation',
+    itemId:       item.id,
+    prompt:       item.tenseName,
+    question:     item.form,
+    danishVerb:   item.form,
+    correctValue: 'correct',
+    options: [
+      { label: '✓  Got it right',        value: 'correct' },
+      { label: '✗  Needs more practice', value: 'wrong'   },
+    ],
+  };
 }
 
 function nextQuestion() {
