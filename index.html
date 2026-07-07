@@ -7,6 +7,11 @@
   <title>Danish Practice</title>
   <link rel="stylesheet" href="css/style.css" />
   <script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
+  <!-- Firebase v8 compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="js/firebase.js"></script>
   <style>
     .home-header {
       padding: 28px 0 20px;
@@ -36,7 +41,10 @@
 </head>
 <body>
   <div class="home-header">
-    <span class="home-greeting">🇩🇰 Let's practice</span>
+    <div class="auth-bar">
+      <span class="home-greeting">🇩🇰 Let's practice</span>
+      <div id="auth-btn-container" style="display:flex;gap:6px;align-items:center"></div>
+    </div>
     <h1 class="home-title">Danish</h1>
   </div>
 
@@ -91,6 +99,11 @@
     </div>
 
   </div>
-  <script>twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });</script>
+  <script>twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
+    initAuth(
+      () => renderAuthButton(),
+      () => renderAuthButton()
+    );
+  </script>
 </body>
 </html>

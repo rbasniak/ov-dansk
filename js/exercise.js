@@ -53,6 +53,7 @@ function makeEnToDaQuestion(verb, allVerbs) {
   const options = shuffle([verb, ...distractors]);
   return {
     type: 'en-to-da',
+    itemId: verb.inf,
     prompt: 'Which Danish verb matches?',
     question: verb.meaning,
     correctValue: verb.inf,
@@ -66,6 +67,7 @@ function makeDaToEnQuestion(verb, allVerbs) {
   const options = shuffle([verb, ...distractors]);
   return {
     type: 'da-to-en',
+    itemId: verb.inf,
     prompt: 'What does this verb mean?',
     question: verb.inf,
     correctValue: verb.meaning,
@@ -83,6 +85,7 @@ function makeGroupQuestion(verb) {
   ];
   return {
     type: 'group',
+    itemId: verb.inf,
     prompt: 'What group does this verb belong to?',
     question: verb.inf,
     correctValue: verb.group,
@@ -117,13 +120,17 @@ function balancedGroupVerbs(allVerbs, count) {
 
 // ─── Main: Generate Exercise Session ─────────────────────────────────────────
 
-function generateExercises(config) {
+// preSelectedVerbs: optional array of verb objects (used by adaptive mode).
+// When provided, selection and balancing are skipped — the list is used as-is.
+function generateExercises(config, preSelectedVerbs = null) {
   const allVerbs = VERBS.slice(0, config.verbSet === 'top100' ? 100 : VERBS.length);
   const count = config.count === 'all' ? allVerbs.length : (parseInt(config.count, 10) || 10);
   const type = config.exerciseType;
 
   let selectedVerbs;
-  if (type === 'group') {
+  if (preSelectedVerbs !== null) {
+    selectedVerbs = preSelectedVerbs;
+  } else if (type === 'group') {
     selectedVerbs = balancedGroupVerbs(allVerbs, count);
   } else {
     selectedVerbs = pickRandom(allVerbs, count);
@@ -166,29 +173,54 @@ function stopTTS() {
 
 
 let state = {
-  exercises: [],
-  index: 0,
-  score: 0,
-  answered: false,
+  exercises:     [],
+  index:         0,
+  score:         0,
+  dontKnowCount: 0,
+  answered:      false,
   timerInterval: null,
-  timeLeft: 0,
-  totalTime: 0,
-  audio: true,
+  timeLeft:      0,
+  totalTime:     0,
+  audio:         true,
+  practiceMode:  null,  // 'mixed' | 'learn' | 'review' | null (anonymous)
+  subject:       'verbs',
 };
 
-function initExercise() {
+async function initExercise() {
   const raw = sessionStorage.getItem('verbConfig');
   if (!raw) { window.location.href = 'verbs-config.html'; return; }
 
-  const config = JSON.parse(raw);
-  state.exercises = generateExercises(config);
-  state.index = 0;
-  state.score = 0;
-  state.totalTime = config.timeLimit ? parseInt(config.timeLimit, 10) : 0;
-  state.audio = config.audio !== 'off';
+  const config   = JSON.parse(raw);
+  const allVerbs = VERBS.slice(0, config.verbSet === 'top100' ? 100 : VERBS.length);
 
-  // Show/hide TTS button globally based on audio setting
-  const ttsBtn = document.getElementById('tts-btn');
+  state.index         = 0;
+  state.score         = 0;
+  state.dontKnowCount = 0;
+  state.totalTime     = config.timeLimit ? parseInt(config.timeLimit, 10) : 0;
+  state.audio         = config.audio !== 'off';
+  state.practiceMode  = config.practiceMode || null;
+  state.subject       = 'verbs';
+
+  // ── Adaptive pool (logged-in + practice mode selected) ──
+  const useAdaptive = config.practiceMode &&
+                      typeof isLoggedIn === 'function' && isLoggedIn();
+
+  if (useAdaptive) {
+    const count       = config.count === 'all' ? Infinity : (parseInt(config.count, 10) || 10);
+    const progressMap = await loadProgress('verbs');
+    const selected    = selectAdaptiveItems(allVerbs, progressMap, config.practiceMode, count);
+
+    if (selected.length === 0) {
+      showEmptyState(config.practiceMode);
+      return;
+    }
+    state.exercises = generateExercises(config, selected);
+  } else {
+    state.exercises = generateExercises(config);
+  }
+
+  // Show / hide TTS controls
+  const ttsBtn   = document.getElementById('tts-btn');
   const ttsLabel = document.getElementById('tts-verb-label');
   if (ttsBtn)   ttsBtn.style.display   = state.audio ? '' : 'none';
   if (ttsLabel) ttsLabel.style.display = state.audio ? '' : 'none';
@@ -213,6 +245,13 @@ function renderQuestion() {
   // Hint (unused element guard)
   const hintEl = document.getElementById('question-hint');
   if (hintEl) hintEl.style.display = 'none';
+
+  // Don't Know button — only for logged-in users
+  const dkContainer = document.getElementById('dont-know-container');
+  if (dkContainer) {
+    dkContainer.style.display =
+      (typeof isLoggedIn === 'function' && isLoggedIn()) ? '' : 'none';
+  }
 
   // Answer buttons
   const grid = document.getElementById('answer-grid');
@@ -262,9 +301,17 @@ function handleAnswer(selectedValue, clickedBtn) {
   state.answered = true;
   clearInterval(state.timerInterval);
 
-  const q = state.exercises[state.index];
-  const isCorrect = selectedValue === q.correctValue;
+  const q         = state.exercises[state.index];
+  const isTimeout = selectedValue === null && clickedBtn === null;
+  const isCorrect = !isTimeout && selectedValue === q.correctValue;
   if (isCorrect) state.score++;
+
+  // Record to Firestore (fire-and-forget — does not block the UI)
+  if (typeof recordAnswer === 'function' && typeof isLoggedIn === 'function' &&
+      isLoggedIn() && q.itemId) {
+    const resultType = isTimeout ? 'timeout' : (isCorrect ? 'correct' : 'wrong');
+    recordAnswer(state.subject, q.itemId, resultType).catch(console.error);
+  }
 
   // Highlight buttons
   document.querySelectorAll('.answer-btn').forEach(btn => {
@@ -280,14 +327,34 @@ function handleAnswer(selectedValue, clickedBtn) {
   setTimeout(() => showFeedback(isCorrect, q), 500);
 }
 
-function showFeedback(isCorrect, q) {
+function handleDontKnow() {
+  if (state.answered) return;
+  state.answered = true;
+  clearInterval(state.timerInterval);
+  state.dontKnowCount++;
+
+  const q = state.exercises[state.index];
+
+  // Disable answer buttons without revealing them
+  document.querySelectorAll('.answer-btn').forEach(btn => { btn.disabled = true; });
+
+  // Record to Firestore
+  if (typeof recordAnswer === 'function' && typeof isLoggedIn === 'function' &&
+      isLoggedIn() && q.itemId) {
+    recordAnswer(state.subject, q.itemId, 'dont_know').catch(console.error);
+  }
+
+  setTimeout(() => showFeedback(false, q, true), 300);
+}
+
+function showFeedback(isCorrect, q, isDontKnow = false) {
   _ttsVerb = q.danishVerb || '';
 
   const overlay       = document.getElementById('feedback-overlay');
   overlay.className   = 'feedback-overlay ' + (isCorrect ? 'success' : 'failure');
 
-  document.getElementById('feedback-icon').textContent  = isCorrect ? '✓' : '✗';
-  document.getElementById('feedback-title').textContent = isCorrect ? 'Correct!' : 'Incorrect';
+  document.getElementById('feedback-icon').textContent  = isCorrect ? '✓' : (isDontKnow ? '💡' : '✗');
+  document.getElementById('feedback-title').textContent = isCorrect ? 'Correct!' : (isDontKnow ? "Let's learn!" : 'Incorrect');
 
   const correctEl     = document.getElementById('feedback-correct');
   const subtitleEl    = document.getElementById('feedback-subtitle');
@@ -363,12 +430,13 @@ function showSummary() {
   const summary = document.getElementById('summary-view');
   summary.style.display = 'flex';
 
-  const total = state.exercises.length;
-  const pct = Math.round((state.score / total) * 100);
+  const total      = state.exercises.length;
+  const wrongCount = total - state.score - state.dontKnowCount;
+  const pct        = Math.round((state.score / total) * 100);
 
   document.getElementById('score-number').textContent = state.score;
-  document.getElementById('score-total').textContent = '/ ' + total;
-  document.getElementById('score-pct').textContent = pct + '%';
+  document.getElementById('score-total').textContent  = '/ ' + total;
+  document.getElementById('score-pct').textContent    = pct + '%';
 
   let msg = '';
   if (pct === 100) msg = '🏆 Perfect score!';
@@ -378,4 +446,40 @@ function showSummary() {
   else msg = '💪 Don\'t give up!';
 
   document.getElementById('summary-msg').textContent = msg;
+
+  // Session breakdown — logged-in users only
+  const breakdown = document.getElementById('session-breakdown');
+  if (breakdown && typeof isLoggedIn === 'function' && isLoggedIn()) {
+    breakdown.style.display = '';
+    const dkHtml = state.dontKnowCount > 0
+      ? `<span class="breakdown-item dk-item">💡 ${state.dontKnowCount} don't know</span>`
+      : '';
+    breakdown.innerHTML = `
+      <div class="breakdown-row">
+        <span class="breakdown-item correct-item">✓ ${state.score} correct</span>
+        <span class="breakdown-item wrong-item">✗ ${wrongCount} wrong</span>
+        ${dkHtml}
+      </div>
+      <p class="breakdown-note">Progress saved ✓</p>
+    `;
+  } else if (breakdown) {
+    breakdown.style.display = 'none';
+  }
+}
+
+function showEmptyState(mode) {
+  document.getElementById('exercise-view').style.display = 'none';
+
+  const emptyView = document.getElementById('empty-state-view');
+  emptyView.style.display = 'flex';
+
+  if (mode === 'review') {
+    document.getElementById('empty-icon').textContent = '🎉';
+    document.getElementById('empty-msg').textContent  =
+      'Nothing to review right now! Come back later or switch to Learn mode.';
+  } else {
+    document.getElementById('empty-icon').textContent = '🌱';
+    document.getElementById('empty-msg').textContent  =
+      'No new items left in this set. Switch to Review or Mixed mode.';
+  }
 }

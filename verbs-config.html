@@ -7,15 +7,21 @@
   <title>Verbs – Configure | Danish Practice</title>
   <link rel="stylesheet" href="css/style.css" />
   <script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
+  <!-- Firebase v8 compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="js/firebase.js"></script>
 </head>
 <body>
 
   <!-- Header -->
   <div class="header">
     <a href="index.html" class="back-btn" aria-label="Back">←</a>
-    <div>
+    <div style="flex:1">
       <div class="page-title">Verbs</div>
     </div>
+    <div id="auth-btn-container" style="display:flex;gap:6px;align-items:center"></div>
   </div>
 
   <p class="intro-text">Configure your practice session below, then tap Start.</p>
@@ -173,6 +179,44 @@
     </div>
   </div>
 
+  <!-- ── Practice Mode (logged-in only) ──────────────────── -->
+  <div class="section" id="practice-mode-section">
+    <div class="section-title">
+      Practice Mode
+      <span id="auth-required-badge" class="auth-required-badge">🔒 Sign in to unlock</span>
+    </div>
+    <div class="radio-group" id="grp-mode">
+
+      <label class="radio-option selected disabled" id="mode-mixed-opt">
+        <input type="radio" name="practicemode" value="mixed" checked disabled />
+        <div class="radio-dot"></div>
+        <div class="radio-text">
+          <span class="radio-label">🔀 Mixed <span class="mode-badge">Default</span></span>
+          <span class="radio-sublabel">70 % review + 30 % new — smart mix that always adds fresh vocabulary</span>
+        </div>
+      </label>
+
+      <label class="radio-option disabled" id="mode-learn-opt">
+        <input type="radio" name="practicemode" value="learn" disabled />
+        <div class="radio-dot"></div>
+        <div class="radio-text">
+          <span class="radio-label">🌱 Learn</span>
+          <span class="radio-sublabel">Only new items you haven't practiced yet</span>
+        </div>
+      </label>
+
+      <label class="radio-option disabled" id="mode-review-opt">
+        <input type="radio" name="practicemode" value="review" disabled />
+        <div class="radio-dot"></div>
+        <div class="radio-text">
+          <span class="radio-label">🔁 Review</span>
+          <span class="radio-sublabel">Only items due for review based on your progress</span>
+        </div>
+      </label>
+
+    </div>
+  </div>
+
   <button class="start-btn" id="start-btn" onclick="startExercise()">Start Practice →</button>
 
   <script>
@@ -191,6 +235,35 @@
       });
     });
 
+    // ── Practice mode section: lock/unlock based on auth ──
+    function setPracticeModeEnabled(enabled) {
+      const badge   = document.getElementById('auth-required-badge');
+      const section = document.getElementById('practice-mode-section');
+      const options = section.querySelectorAll('.radio-option');
+      const radios  = section.querySelectorAll('input[type="radio"]');
+
+      badge.style.display = enabled ? 'none' : '';
+
+      options.forEach(opt => {
+        radios.forEach(r => { r.disabled = !enabled; });
+        if (enabled) {
+          opt.classList.remove('disabled');
+          opt.addEventListener('click', _modeClickHandler);
+        } else {
+          opt.classList.add('disabled');
+          opt.removeEventListener('click', _modeClickHandler);
+        }
+      });
+    }
+
+    function _modeClickHandler() {
+      const radio = this.querySelector('input[type="radio"]');
+      if (!radio || radio.disabled) return;
+      radio.checked = true;
+      document.querySelectorAll('#grp-mode .radio-option').forEach(o => o.classList.remove('selected'));
+      this.classList.add('selected');
+    }
+
     // ── Start ──────────────────────────────────────────────
     function startExercise() {
       const get = name => {
@@ -199,18 +272,28 @@
       };
 
       const config = {
-        verbSet:      get('verbset')   || 'top100',
-        exerciseType: get('extype')    || 'en-to-da',
-        count:        get('count')     || '10',
-        timeLimit:    get('timelimit') || '0',
-        audio:        get('audio')     || 'on',
+        verbSet:       get('verbset')   || 'top100',
+        exerciseType:  get('extype')    || 'en-to-da',
+        count:         get('count')     || '10',
+        timeLimit:     get('timelimit') || '0',
+        audio:         get('audio')     || 'on',
+        practiceMode:  (typeof isLoggedIn === 'function' && isLoggedIn())
+                         ? (get('practicemode') || 'mixed')
+                         : null,
       };
 
       sessionStorage.setItem('verbConfig', JSON.stringify(config));
       window.location.href = 'exercise.html';
     }
 
-    twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
+    // ── Firebase auth ──────────────────────────────────────
+    window.addEventListener('load', () => {
+      twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
+      initAuth(
+        () => { renderAuthButton(); setPracticeModeEnabled(true);  },
+        () => { renderAuthButton(); setPracticeModeEnabled(false); }
+      );
+    });
   </script>
 </body>
 </html>

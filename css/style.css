@@ -651,6 +651,239 @@ body {
 }
 
 
+/* ── Auth Button ──────────────────────────────────────────── */
+.auth-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 99px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.12s, border-color 0.12s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.auth-btn:active { background: var(--surface2); }
+.auth-btn--login  { border-color: var(--primary); color: var(--primary); }
+.auth-btn--icon   { padding: 7px 10px; color: var(--text-muted); }
+
+.auth-avatar {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.auth-avatar--text {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+}
+.auth-name {
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Auth row used in home header */
+.auth-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+/* ── Practice Mode section ────────────────────────────────── */
+.auth-required-badge {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  margin-left: 6px;
+}
+.mode-badge {
+  display: inline-block;
+  padding: 1px 7px;
+  background: rgba(59,130,246,0.15);
+  color: var(--primary);
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 6px;
+  vertical-align: middle;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ── Don't Know button ────────────────────────────────────── */
+#dont-know-container { margin-top: 4px; }
+
+.dont-know-btn {
+  width: 100%;
+  padding: 14px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 15px;
+  font-weight: 600;
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: border-color 0.12s, color 0.12s, background 0.12s;
+}
+.dont-know-btn:active {
+  border-color: var(--warning);
+  color: var(--warning);
+  background: rgba(245,158,11,0.08);
+}
+
+/* ── Session breakdown (end-of-session, logged-in only) ───── */
+.breakdown-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.breakdown-item {
+  font-size: 15px;
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 10px;
+}
+.breakdown-item.correct-item { background: rgba(34,197,94,0.12);  color: var(--success); }
+.breakdown-item.wrong-item   { background: rgba(239,68,68,0.12);  color: var(--error);   }
+.breakdown-item.dk-item      { background: rgba(245,158,11,0.12); color: var(--warning); }
+.breakdown-note {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+/* ── Progress page ────────────────────────────────────────── */
+.login-prompt {
+  text-align: center;
+  padding: 48px 8px;
+}
+.login-prompt h2 {
+  font-size: 26px;
+  font-weight: 900;
+  margin-bottom: 12px;
+}
+.login-prompt p {
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+.due-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(245,158,11,0.1);
+  border: 1px solid rgba(245,158,11,0.3);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--warning);
+}
+
+.progress-subject-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 14px;
+}
+.progress-subject-title {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.progress-stats-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.progress-stat {
+  flex: 1;
+  text-align: center;
+  padding: 12px 6px;
+  background: var(--bg);
+  border-radius: 10px;
+}
+.progress-stat-value {
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1;
+}
+.progress-stat-value.mastered-val { color: var(--success); }
+.progress-stat-value.learning-val { color: var(--primary); }
+.progress-stat-value.new-val      { color: var(--text-dim); }
+.progress-stat-value.due-val      { color: var(--warning); }
+.progress-stat-label {
+  font-size: 10px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.progress-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.progress-bar-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  width: 72px;
+  flex-shrink: 0;
+}
+.progress-bar-track {
+  flex: 1;
+  height: 8px;
+  background: var(--surface2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s ease;
+}
+.progress-bar-fill.mastered { background: var(--success); }
+.progress-bar-fill.learning { background: var(--primary); }
+.progress-bar-count {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  width: 34px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
 img.emoji {
   height: 1.1em;
   width: 1.1em;

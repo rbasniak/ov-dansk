@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Progress | Danish Practice</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
+  <!-- Firebase v8 compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="js/firebase.js"></script>
+</head>
+<body>
+
+  <div class="header">
+    <a href="index.html" class="back-btn" aria-label="Back">←</a>
+    <div style="flex:1">
+      <div class="page-title">My Progress</div>
+    </div>
+    <div id="auth-btn-container" style="display:flex;gap:6px;align-items:center"></div>
+  </div>
+
+  <div id="progress-content">
+    <p style="color:var(--text-muted);padding:20px 0">Loading…</p>
+  </div>
+
+  <!-- Verb data needed to know total item count -->
+  <script src="js/verbs-data.js"></script>
+
+  <script>
+    window.addEventListener('load', () => {
+      twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
+      initAuth(
+        user => { renderAuthButton(); loadProgressPage(); },
+        ()   => { renderAuthButton(); showLoginPrompt(); }
+      );
+    });
+
+    function showLoginPrompt() {
+      document.getElementById('progress-content').innerHTML = `
+        <div class="login-prompt">
+          <div style="font-size:64px;margin-bottom:16px">📊</div>
+          <h2>Track your progress</h2>
+          <p>Sign in with Google to save your answers and see how you're improving over time.</p>
+          <button class="start-btn" onclick="signInWithGoogle()" style="max-width:280px;margin:0 auto;display:block">
+            Sign in with Google
+          </button>
+        </div>
+      `;
+    }
+
+    async function loadProgressPage() {
+      const container  = document.getElementById('progress-content');
+      container.innerHTML = '<p style="color:var(--text-muted);padding:20px 0">Loading…</p>';
+
+      const totalVerbs  = VERBS.length;
+      const progressMap = await loadProgress('verbs');
+      const stats       = getProgressStats(progressMap, totalVerbs);
+
+      const masteredPct = totalVerbs ? Math.round((stats.mastered / totalVerbs) * 100) : 0;
+      const learningPct = totalVerbs ? Math.round((stats.learning / totalVerbs) * 100) : 0;
+
+      const dueAlert = stats.dueCount > 0
+        ? `<div class="due-alert">
+             ⏰ <strong>${stats.dueCount} verb${stats.dueCount === 1 ? '' : 's'}</strong> due for review
+           </div>`
+        : '';
+
+      container.innerHTML = `
+        ${dueAlert}
+
+        <div class="progress-subject-card">
+          <div class="progress-subject-title">📝 Verbs</div>
+
+          <div class="progress-stats-row">
+            <div class="progress-stat">
+              <div class="progress-stat-value mastered-val">${stats.mastered}</div>
+              <div class="progress-stat-label">Mastered</div>
+            </div>
+            <div class="progress-stat">
+              <div class="progress-stat-value learning-val">${stats.learning}</div>
+              <div class="progress-stat-label">Learning</div>
+            </div>
+            <div class="progress-stat">
+              <div class="progress-stat-value new-val">${stats.newCount}</div>
+              <div class="progress-stat-label">New</div>
+            </div>
+            <div class="progress-stat">
+              <div class="progress-stat-value due-val">${stats.dueCount}</div>
+              <div class="progress-stat-label">Due</div>
+            </div>
+          </div>
+
+          <div class="progress-bar-row">
+            <span class="progress-bar-label">Mastered</span>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill mastered" style="width:${masteredPct}%"></div>
+            </div>
+            <span class="progress-bar-count">${masteredPct}%</span>
+          </div>
+          <div class="progress-bar-row">
+            <span class="progress-bar-label">Learning</span>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill learning" style="width:${learningPct}%"></div>
+            </div>
+            <span class="progress-bar-count">${learningPct}%</span>
+          </div>
+
+          <p style="font-size:12px;color:var(--text-dim);margin-top:10px">
+            Mastered = 3 correct answers in a row with increasing spacing · Total: ${totalVerbs} verbs
+          </p>
+        </div>
+
+        <a href="verbs-config.html" class="start-btn" style="display:block;text-align:center;text-decoration:none;margin-top:4px">
+          Practice Verbs →
+        </a>
+      `;
+    }
+  </script>
+</body>
+</html>
