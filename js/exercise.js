@@ -388,7 +388,7 @@ function showFeedback(isCorrect, q, isDontKnow = false) {
   const overlay       = document.getElementById('feedback-overlay');
   overlay.className   = 'feedback-overlay ' + (isCorrect ? 'success' : 'failure');
 
-  document.getElementById('feedback-icon').textContent  = isCorrect ? '✓' : (isDontKnow ? '💡' : '✗');
+  document.getElementById('feedback-icon').textContent  = isCorrect ? '✓' : (isDontKnow ? '🤔' : '✗');
 
   // Pronunciation: icon/title reflect self-assessment, not a "right/wrong" judgment
   if (q.type === 'pronunciation') {
@@ -544,7 +544,7 @@ function showSummary() {
   if (breakdown && typeof isLoggedIn === 'function' && isLoggedIn()) {
     breakdown.style.display = '';
     const dkHtml = state.dontKnowCount > 0
-      ? `<span class="breakdown-item dk-item">💡 ${state.dontKnowCount} don't know</span>`
+      ? `<span class="breakdown-item dk-item">🤔 ${state.dontKnowCount} don't know</span>`
       : '';
     breakdown.innerHTML = `
       <div class="breakdown-row">
