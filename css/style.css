@@ -916,49 +916,52 @@ body {
   gap: 8px;
 }
 
-.progress-stats-row {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
+/* ── Per-type row ─────────────────────────────────────────── */
+.progress-type-row {
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
 }
-.progress-stat {
-  flex: 1;
-  text-align: center;
-  padding: 12px 6px;
-  background: var(--bg);
-  border-radius: 10px;
+.progress-type-row:first-of-type {
+  border-top: none;
 }
-.progress-stat-value {
-  font-size: 26px;
-  font-weight: 900;
-  line-height: 1;
-}
-.progress-stat-value.mastered-val { color: var(--success); }
-.progress-stat-value.learning-val { color: var(--primary); }
-.progress-stat-value.new-val      { color: var(--text-dim); }
-.progress-stat-value.due-val      { color: var(--warning); }
-.progress-stat-label {
-  font-size: 10px;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-  font-weight: 700;
-  margin-top: 4px;
-}
-
-.progress-bar-row {
+.progress-type-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
 }
-.progress-bar-label {
+.progress-type-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  flex-shrink: 0;
+}
+.progress-type-counts {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-left: auto;
+}
+.progress-due-chip {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--warning);
+  background: rgba(234,179,8,0.12);
+  border-radius: 20px;
+  padding: 2px 8px;
+  flex-shrink: 0;
+}
+.progress-bar-stack {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.progress-bar-pct {
   font-size: 12px;
   font-weight: 700;
   color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  width: 72px;
+  width: 32px;
+  text-align: right;
   flex-shrink: 0;
 }
 .progress-bar-track {
@@ -967,22 +970,18 @@ body {
   background: var(--surface2);
   border-radius: 4px;
   overflow: hidden;
+  position: relative;
 }
 .progress-bar-fill {
   height: 100%;
   border-radius: 4px;
   transition: width 0.6s ease;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
-.progress-bar-fill.mastered { background: var(--success); }
-.progress-bar-fill.learning { background: var(--primary); }
-.progress-bar-count {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-muted);
-  width: 34px;
-  text-align: right;
-  flex-shrink: 0;
-}
+.progress-bar-fill.mastered { background: var(--success); z-index: 2; }
+.progress-bar-fill.learning { background: var(--primary);  z-index: 1; }
 
 img.emoji {
   height: 1.1em;

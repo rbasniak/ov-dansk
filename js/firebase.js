@@ -248,3 +248,13 @@ function getProgressStats(progressMap, totalItems) {
     total:    totalItems,
   };
 }
+
+// Like getProgressStats but filters progressMap to only keys containing `substr`.
+// Use suffix = '_en-to-da', '_da-to-en', '_group', '_pronunciation_' etc.
+function getProgressStatsByType(progressMap, substr, totalItems) {
+  const filtered = {};
+  for (const [k, v] of Object.entries(progressMap)) {
+    if (k.includes(substr)) filtered[k] = v;
+  }
+  return getProgressStats(filtered, totalItems);
+}

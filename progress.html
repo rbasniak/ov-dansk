@@ -27,8 +27,8 @@
     <p style="color:var(--text-muted);padding:20px 0">Loading…</p>
   </div>
 
-  <!-- Verb data needed to know total item count -->
   <script src="js/verbs-data.js"></script>
+  <script src="js/nouns-data.js"></script>
 
   <script>
     window.addEventListener('load', () => {
@@ -52,72 +52,102 @@
       `;
     }
 
-    async function loadProgressPage() {
-      const container  = document.getElementById('progress-content');
-      container.innerHTML = '<p style="color:var(--text-muted);padding:20px 0">Loading…</p>';
+    /* ── Helpers ──────────────────────────────────────────────── */
 
-      const totalVerbs  = VERBS.length;
-      const progressMap = await loadProgress('verbs');
-      const stats       = getProgressStats(progressMap, totalVerbs);
+    function _countPronunciationVerbs() {
+      // Count unique tense forms that exist across all verbs
+      const tenseKeys = ['inf', 'imp', 'present', 'past', 'perfect'];
+      let total = 0;
+      for (const verb of VERBS) {
+        for (const k of tenseKeys) {
+          if (verb[k] && verb[k] !== '—') total++;
+        }
+      }
+      return total;
+    }
 
-      const masteredPct = totalVerbs ? Math.round((stats.mastered / totalVerbs) * 100) : 0;
-      const learningPct = totalVerbs ? Math.round((stats.learning / totalVerbs) * 100) : 0;
+    function _countPronunciationNouns() {
+      // Count forms that exist (mass nouns skip plural/definitePl)
+      const formKeys = ['da', 'definiteSg', 'plural', 'definitePl'];
+      let total = 0;
+      for (const noun of NOUNS) {
+        for (const k of formKeys) {
+          if (noun[k]) total++;
+        }
+      }
+      return total;
+    }
 
-      const dueAlert = stats.dueCount > 0
-        ? `<div class="due-alert">
-             ⏰ <strong>${stats.dueCount} verb${stats.dueCount === 1 ? '' : 's'}</strong> due for review
-           </div>`
+    function _statBar(label, stats) {
+      const masteredPct = stats.total ? Math.round((stats.mastered / stats.total) * 100) : 0;
+      const learningPct = stats.total ? Math.round((stats.learning / stats.total) * 100) : 0;
+      const dueChip     = stats.dueCount > 0
+        ? `<span class="progress-due-chip">⏰ ${stats.dueCount} due</span>`
         : '';
-
-      container.innerHTML = `
-        ${dueAlert}
-
-        <div class="progress-subject-card">
-          <div class="progress-subject-title">📝 Verbs</div>
-
-          <div class="progress-stats-row">
-            <div class="progress-stat">
-              <div class="progress-stat-value mastered-val">${stats.mastered}</div>
-              <div class="progress-stat-label">Mastered</div>
-            </div>
-            <div class="progress-stat">
-              <div class="progress-stat-value learning-val">${stats.learning}</div>
-              <div class="progress-stat-label">Learning</div>
-            </div>
-            <div class="progress-stat">
-              <div class="progress-stat-value new-val">${stats.newCount}</div>
-              <div class="progress-stat-label">New</div>
-            </div>
-            <div class="progress-stat">
-              <div class="progress-stat-value due-val">${stats.dueCount}</div>
-              <div class="progress-stat-label">Due</div>
-            </div>
+      return `
+        <div class="progress-type-row">
+          <div class="progress-type-header">
+            <span class="progress-type-label">${label}</span>
+            ${dueChip}
+            <span class="progress-type-counts">${stats.mastered} mastered · ${stats.learning} learning · ${stats.newCount} new</span>
           </div>
-
-          <div class="progress-bar-row">
-            <span class="progress-bar-label">Mastered</span>
+          <div class="progress-bar-stack">
             <div class="progress-bar-track">
               <div class="progress-bar-fill mastered" style="width:${masteredPct}%"></div>
+              <div class="progress-bar-fill learning" style="width:${learningPct}%;left:${masteredPct}%"></div>
             </div>
-            <span class="progress-bar-count">${masteredPct}%</span>
+            <span class="progress-bar-pct">${masteredPct}%</span>
           </div>
-          <div class="progress-bar-row">
-            <span class="progress-bar-label">Learning</span>
-            <div class="progress-bar-track">
-              <div class="progress-bar-fill learning" style="width:${learningPct}%"></div>
-            </div>
-            <span class="progress-bar-count">${learningPct}%</span>
-          </div>
+        </div>`;
+    }
 
-          <p style="font-size:12px;color:var(--text-dim);margin-top:10px">
-            Mastered = 3 correct answers in a row with increasing spacing · Total: ${totalVerbs} verbs
-          </p>
+    function _subjectCard(title, configHref, rows) {
+      return `
+        <div class="progress-subject-card">
+          <div class="progress-subject-title">${title}</div>
+          ${rows.join('')}
         </div>
+        <a href="${configHref}" class="start-btn" style="display:block;text-align:center;text-decoration:none;margin-top:4px;margin-bottom:20px">
+          Practice ${title.replace(/^[^\s]+ /, '')} →
+        </a>`;
+    }
 
-        <a href="verbs-config.html" class="start-btn" style="display:block;text-align:center;text-decoration:none;margin-top:4px">
-          Practice Verbs →
-        </a>
-      `;
+    /* ── Main ─────────────────────────────────────────────────── */
+
+    async function loadProgressPage() {
+      const container = document.getElementById('progress-content');
+      container.innerHTML = '<p style="color:var(--text-muted);padding:20px 0">Loading…</p>';
+
+      const [verbsMap, nounsMap] = await Promise.all([
+        loadProgress('verbs'),
+        loadProgress('nouns'),
+      ]);
+
+      const nVerbs = VERBS.length;
+      const nNouns = NOUNS.length;
+      const nVerbPron = _countPronunciationVerbs();
+      const nNounPron = _countPronunciationNouns();
+
+      // ── Verbs ──
+      const verbRows = [
+        _statBar('🔤 Danish → English',  getProgressStatsByType(verbsMap, '_da-to-en', nVerbs)),
+        _statBar('🔤 English → Danish',  getProgressStatsByType(verbsMap, '_en-to-da', nVerbs)),
+        _statBar('🔄 Conjugation group', getProgressStatsByType(verbsMap, '_group',    nVerbs)),
+        _statBar('🗣 Pronunciation',      getProgressStatsByType(verbsMap, '_pronunciation_', nVerbPron)),
+      ];
+
+      // ── Nouns ──
+      const nounRows = [
+        _statBar('🔤 Danish → English',  getProgressStatsByType(nounsMap, '_da-to-en',    nNouns)),
+        _statBar('🔤 English → Danish',  getProgressStatsByType(nounsMap, '_en-to-da',    nNouns)),
+        _statBar('♂♀ Gender',            getProgressStatsByType(nounsMap, '_gender',       nNouns)),
+        _statBar('📚 Plural class',       getProgressStatsByType(nounsMap, '_plural-class', nNouns)),
+        _statBar('🗣 Pronunciation',      getProgressStatsByType(nounsMap, '_pronunciation_', nNounPron)),
+      ];
+
+      container.innerHTML =
+        _subjectCard('📝 Verbs', 'verbs-config.html', verbRows) +
+        _subjectCard('📖 Nouns', 'nouns-config.html', nounRows);
     }
   </script>
 </body>
