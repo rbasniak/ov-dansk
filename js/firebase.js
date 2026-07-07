@@ -4,12 +4,12 @@
 // Replace these placeholder values with your Firebase project's config.
 // See the "Firebase Setup" section at the bottom of README.md for instructions.
 const FIREBASE_CONFIG = {
-  apiKey:            'REPLACE_WITH_YOUR_API_KEY',
-  authDomain:        'REPLACE_WITH_YOUR_PROJECT_ID.firebaseapp.com',
-  projectId:         'REPLACE_WITH_YOUR_PROJECT_ID',
-  storageBucket:     'REPLACE_WITH_YOUR_PROJECT_ID.appspot.com',
-  messagingSenderId: 'REPLACE_WITH_YOUR_SENDER_ID',
-  appId:             'REPLACE_WITH_YOUR_APP_ID',
+  apiKey:            'AIzaSyAmrttzr16EMpmmaNx8D7NUiwYjqo4996M',
+  authDomain:        'ov-dansk.firebaseapp.com',
+  projectId:         'ov-dansk',
+  storageBucket:     'ov-dansk.firebasestorage.app',
+  messagingSenderId: '749643252913',
+  appId:             '1:749643252913:web:63f7c2f46815a35dfe0e90',
 };
 
 firebase.initializeApp(FIREBASE_CONFIG);
