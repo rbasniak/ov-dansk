@@ -2,64 +2,176 @@
 
 A mobile-first web app for practising Danish vocabulary, hosted on GitHub Pages.
 
-**Live app → [rbasniak.github.io/danish-exercises](https://rbasniak.github.io/danish-exercises)**
+**Live app → [rbasniak.github.io/ov-dansk](https://rbasniak.github.io/ov-dansk)**
 
 ---
 
-## Features
+## Subjects & Exercise Types
 
-### Subjects
-| Subject | Status |
-|---------|--------|
-| 📝 Verbs | ✅ Available |
-| 🔠 Nouns | 🔜 Coming soon |
-| 💬 Phrases | 🔜 Coming soon |
+### 📝 Verbs
 
-### Verb exercises
+Practise using the **top 100** or **top 500** most common Danish verbs.
 
-Three exercise modes using the **top 100 most common Danish verbs**:
-
-| Mode | Description |
-|------|-------------|
+| Exercise type | Description |
+|---------------|-------------|
 | 🇬🇧 → 🇩🇰 Translate to Danish | See the English meaning, pick the correct Danish infinitive |
 | 🇩🇰 → 🇬🇧 Translate to English | See a Danish verb, pick its English meaning |
-| 🗂 Conjugation Group | Classify the verb as **-ede**, **-te**, or **Irregular** |
+| 🗂 Conjugation group | Classify the verb as **-ede**, **-te**, or **Irregular** |
+| 🗣 Pronunciation | Each tense form (infinitive, imperative, present, past, perfect) is shown individually — speak it aloud, tap to hear it, then self-assess |
 
-### Smart distractors
-- **EN→DA mode**: wrong answers are visually similar verbs (e.g. *at tale / at tage / at tro / at tænke*), so you really have to think
-- **DA→EN mode**: wrong answers have similar meanings (e.g. *believe / think / mean / seem*)
-- **Group mode**: questions are balanced ~⅓ from each conjugation class
+**Smart distractors**
+- EN→DA: wrong answers are visually similar verbs (e.g. *at tale / at tage / at tro*)
+- DA→EN: wrong answers have related meanings (e.g. *believe / think / mean / seem*)
+- Conjugation group: questions are balanced ~⅓ from each conjugation class
 
-### Other options
-- **Question count**: 5 / 10 / 15 / 20
-- **Time limit per question**: No limit / 30 s / 15 s
-- **Audio**: auto-play Danish TTS pronunciation after each answer (uses the Web Speech API with `da-DK` locale); can be turned off for silent practice
+---
 
-### Feedback screen
-After each answer a full-screen overlay shows ✓ or ✗, the correct answer, and (in group mode) the past-tense form as a reinforcement hint. A 🔊 button lets you replay the pronunciation; tapping anywhere else advances to the next question.
+### 📖 Nouns
+
+Practise using nouns organised by **semantic category** (food, animals, body, etc.). You can select one or more categories per session.
+
+| Exercise type | Description |
+|---------------|-------------|
+| 🇬🇧 → 🇩🇰 Translate to Danish | See the English meaning, pick the correct Danish noun |
+| 🇩🇰 → 🇬🇧 Translate to English | See a Danish noun, pick its English meaning |
+| ⚥ Gender | Is this noun **en** or **et**? |
+| 🗂 Plural class | Classify the noun: **-er**, **-e**, **unchanged**, **vowel change**, or **irregular** |
+| 🗣 Pronunciation | Each form (indefinite, definite, plural, definite plural) is shown individually — speak it aloud, tap to hear it, then self-assess. Mass nouns only have 2 forms. |
+
+**Feedback card**: after every answer, a full info card is shown with all four noun forms and individual 🔊 buttons for each — good reinforcement even on correct answers.
+
+---
+
+### 🔢 Numbers
+
+Randomly generated Danish number exercises. **Not tracked** — purely for drill practice.
+
+| Exercise type | Description |
+|---------------|-------------|
+| 🔊 Hear the number | Listen to a Danish number (TTS), pick the correct numeral |
+| 🔢 Find the written form | See a numeral, pick how it is written in Danish |
+
+Numbers are always random regardless of login status — there is no spaced repetition for numbers.
+
+---
+
+## Adaptive Learning & Progress Tracking
+
+### What is tracked
+
+When signed in with Google, every answer you give is saved to Firestore and used to drive **spaced repetition (SM-2 algorithm)**. The following items are tracked **independently**:
+
+**Verbs** (one Firestore document per verb per exercise type):
+- `at hente` — Danish→English
+- `at hente` — English→Danish
+- `at hente` — Conjugation group
+- `at hente` — Pronunciation (infinitive)
+- `at hente` — Pronunciation (imperative)
+- `at hente` — Pronunciation (present)
+- `at hente` — Pronunciation (past)
+- `at hente` — Pronunciation (perfect)
+
+**Nouns** (one document per noun per exercise type):
+- `hund` — Danish→English
+- `hund` — English→Danish
+- `hund` — Gender
+- `hund` — Plural class
+- `hund` — Pronunciation (indefinite)
+- `hund` — Pronunciation (definite)
+- `hund` — Pronunciation (plural)
+- `hund` — Pronunciation (definite plural)
+
+Knowing a word in one exercise type has **no effect** on any other type.
+
+### What is NOT tracked
+
+- **Numbers** — always random, same for signed-in and anonymous users
+- **Unauthenticated sessions** — anonymous users can use the full app but nothing is saved
+
+### Practice modes (logged-in only)
+
+| Mode | Behaviour |
+|------|-----------|
+| 🔀 Mixed *(default)* | 70 % items due for review + 30 % new items, always guaranteed |
+| 🌱 Learn | Only items you have never seen before |
+| 🔁 Review | Only items that are due according to the spaced-repetition schedule |
+
+### Mastery & spaced repetition
+
+An item is considered **mastered** once you have answered it correctly **3 times in a row**, spaced out over time. The review intervals use the **SM-2 algorithm** with ±25 % randomised fuzz to prevent items clustering on the same date:
+
+| Correct streak | Base interval | Actual range |
+|---------------|---------------|--------------|
+| 1st correct | 1 day | always 1 day |
+| 2nd correct | 6 days | 4 – 8 days |
+| 3rd correct *(mastered)* | 15 days | 11 – 19 days |
+| 4th correct | ~37 days | ~30 – 44 days |
+
+Any wrong answer or "I don't know" resets the streak and schedules the item for the next day.
+
+### "I don't know" button
+
+Logged-in users see a **💡 I don't know** button on every non-pronunciation question. Tapping it:
+- Counts as a wrong answer for the spaced-repetition algorithm
+- Shows the correct answer immediately (without guessing)
+- Does **not** count toward the score
+
+This is useful when you genuinely don't know — guessing and accidentally getting it right would mislead the algorithm into thinking you've learned it.
+
+### Progress page
+
+The **My Progress** page (accessible from the user avatar in the header) shows a breakdown by subject and exercise type:
+- **Mastered** — 3 correct in a row *(green)*
+- **Learning** — seen at least once *(blue)*
+- **New** — never practiced
+- **Due** — scheduled for review today
+
+---
+
+## Session options
+
+All subjects share these configurable options:
+
+| Option | Values |
+|--------|--------|
+| Number of questions | 10 / 20 / 50 / ALL |
+| Time per question | No limit / 30 s / 15 s |
+| Audio | On (auto-play TTS after each answer) / Off |
 
 ---
 
 ## Tech stack
 
 Pure HTML / CSS / JavaScript — no build step, no framework, no dependencies except:
-- [Twemoji](https://github.com/twitter/twemoji) — cross-platform emoji rendering (flags, icons)
-- Web Speech API — Danish TTS (built into all modern browsers)
+- [Twemoji](https://github.com/twitter/twemoji) — cross-platform emoji rendering
+- Web Speech API — Danish TTS (`da-DK`, built into all modern browsers)
+- [Firebase](https://firebase.google.com) — Google Auth + Firestore (optional; app works fully without it for anonymous users)
 
 ---
 
 ## Project structure
 
 ```
-danish-exercises/
-├── index.html           Home page (subject cards)
-├── verbs-config.html    Exercise configuration
-├── exercise.html        Exercise runner + summary screen
+ov-dansk/
+├── index.html                Home page (subject cards)
+├── verbs-config.html         Verb exercise configuration
+├── exercise.html             Verb exercise runner + summary
+├── nouns-config.html         Noun exercise configuration
+├── nouns-exercise.html       Noun exercise runner + summary
+├── numbers-config.html       Number exercise configuration
+├── numbers-exercise.html     Number exercise runner + summary
+├── progress.html             Progress dashboard (logged-in users)
 ├── css/
-│   └── style.css        All styles — dark theme, mobile-first
+│   └── style.css             All styles — dark theme, mobile-first
 └── js/
-    ├── verbs-data.js    100 verb entries + writing/meaning similarity clusters
-    └── exercise.js      Exercise generation, timer, TTS, scoring logic
+    ├── firebase.js           Firebase config, auth, SM-2, Firestore helpers
+    ├── config-prefs.js       localStorage persistence for config settings
+    ├── verbs-data.js         Verb entries + distractor clusters
+    ├── exercise.js           Verb exercise logic
+    ├── nouns-data.js         Noun entries by category
+    ├── nouns-exercise.js     Noun exercise logic
+    ├── numbers-data.js       Number generation + distractor logic
+    └── numbers-exercise.js   Number exercise logic
 ```
 
 ---
@@ -128,6 +240,9 @@ That's it — deploy to GitHub Pages and sign in with Google to start tracking p
 
 ---
 
+## Deploying to GitHub Pages
+
 1. Go to **Settings → Pages** in this repository
 2. Set **Source** to `Deploy from a branch`, branch `main`, folder `/ (root)`
-3. Save — the app will be live at `https://rbasniak.github.io/danish-exercises`
+3. Save — the app will be live at `https://rbasniak.github.io/ov-dansk`
+
