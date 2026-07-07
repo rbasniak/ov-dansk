@@ -240,6 +240,92 @@ body {
 }
 .radio-option.compact .radio-dot { margin: 0; }
 
+/* ── Checkbox options (multi-select) ──────────────────────── */
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.checkbox-group.scrollable {
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.checkbox-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+}
+.checkbox-option.selected {
+  border-color: var(--primary);
+  background: rgba(59,130,246,0.08);
+}
+.checkbox-option input[type="checkbox"] { display: none; }
+.checkbox-box {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+  transition: border-color 0.12s, background 0.12s;
+}
+.checkbox-option.selected .checkbox-box {
+  border-color: var(--primary);
+  background: var(--primary);
+}
+.checkbox-box::after {
+  content: '✓';
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 0.12s, transform 0.12s;
+}
+.checkbox-option.selected .checkbox-box::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.section-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.section-actions {
+  display: flex;
+  gap: 8px;
+}
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+.link-btn:active { background: rgba(59,130,246,0.12); }
+.section-hint {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: -4px 0 10px;
+  line-height: 1.4;
+}
+
 /* ── Start Button ─────────────────────────────────────────── */
 .start-btn {
   width: 100%;

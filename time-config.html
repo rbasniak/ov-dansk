@@ -110,33 +110,32 @@
 
   <button class="start-btn" onclick="startExercise()">Start Practice →</button>
 
+  <script src="js/config-prefs.js"></script>
   <script>
-    document.querySelectorAll('.radio-group').forEach(group => {
-      group.querySelectorAll('.radio-option:not(.disabled)').forEach(opt => {
-        opt.addEventListener('click', () => {
-          const radio = opt.querySelector('input[type="radio"]');
-          if (!radio || radio.disabled) return;
-          radio.checked = true;
-          group.querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected'));
-          opt.classList.add('selected');
-        });
-      });
-    });
+    initRadioGroups();
+
+    function loadTimePrefs() {
+      const prefs = loadConfigPrefs(CONFIG_PREFS_KEYS.time);
+      applyCommonExercisePrefs(prefs, [
+        'count',
+        { name: 'timelimit', key: 'timeLimit' },
+        'audio',
+      ]);
+    }
 
     function startExercise() {
-      const get = name => {
-        const el = document.querySelector(`input[name="${name}"]:checked`);
-        return el ? el.value : null;
-      };
       const config = {
-        count: get('count') || '10',
-        timeLimit: get('timelimit') || '0',
-        audio: get('audio') || 'on'
+        count:     getRadioValue('count')     || '10',
+        timeLimit: getRadioValue('timelimit') || '0',
+        audio:     getRadioValue('audio')     || 'on',
       };
+
+      saveConfigPrefs(CONFIG_PREFS_KEYS.time, config);
       sessionStorage.setItem('timeConfig', JSON.stringify(config));
       window.location.href = 'time-exercise.html';
     }
 
+    loadTimePrefs();
     twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
   </script>
 </body>

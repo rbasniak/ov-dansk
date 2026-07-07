@@ -137,10 +137,27 @@ function _nBalancedPluralNouns(pool, count) {
   return _nShuffle(selected).slice(0, count);
 }
 
+// ─── Category Pool ────────────────────────────────────────────────────────────
+
+function _nGetSelectedCategories(config) {
+  if (Array.isArray(config.categories) && config.categories.length > 0) {
+    return config.categories;
+  }
+  if (config.category) {
+    return [config.category];
+  }
+  return NOUN_CATEGORIES.map(c => c.id);
+}
+
+function _nFilterPool(config) {
+  const selected = new Set(_nGetSelectedCategories(config));
+  return NOUNS.filter(n => selected.has(n.category));
+}
+
 // ─── Generate Exercise Session ────────────────────────────────────────────────
 
 function _nGenerateExercises(config) {
-  const pool = NOUNS.filter(n => n.category === config.category);
+  const pool = _nFilterPool(config);
   const type  = config.exerciseType;
   const count = config.count === 'all' ? pool.length : (parseInt(config.count, 10) || 10);
 

@@ -219,21 +219,20 @@
 
   <button class="start-btn" id="start-btn" onclick="startExercise()">Start Practice →</button>
 
+  <script src="js/config-prefs.js"></script>
   <script>
-    // ── Radio group interactivity ──────────────────────────
-    document.querySelectorAll('.radio-group').forEach(group => {
-      group.querySelectorAll('.radio-option:not(.disabled)').forEach(opt => {
-        opt.addEventListener('click', () => {
-          const radio = opt.querySelector('input[type="radio"]');
-          if (!radio || radio.disabled) return;
-          radio.checked = true;
+    initRadioGroups();
 
-          // Deselect siblings
-          group.querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected'));
-          opt.classList.add('selected');
-        });
-      });
-    });
+    function loadVerbPrefs() {
+      const prefs = loadConfigPrefs(CONFIG_PREFS_KEYS.verbs);
+      applyCommonExercisePrefs(prefs, [
+        { name: 'verbset', key: 'verbSet' },
+        { name: 'extype', key: 'exerciseType' },
+        'count',
+        { name: 'timelimit', key: 'timeLimit' },
+        'audio',
+      ]);
+    }
 
     // ── Practice mode section: lock/unlock based on auth ──
     function setPracticeModeEnabled(enabled) {
@@ -264,31 +263,27 @@
       this.classList.add('selected');
     }
 
-    // ── Start ──────────────────────────────────────────────
     function startExercise() {
-      const get = name => {
-        const el = document.querySelector(`input[name="${name}"]:checked`);
-        return el ? el.value : null;
-      };
-
       const config = {
-        verbSet:       get('verbset')   || 'top100',
-        exerciseType:  get('extype')    || 'en-to-da',
-        count:         get('count')     || '10',
-        timeLimit:     get('timelimit') || '0',
-        audio:         get('audio')     || 'on',
+        verbSet:       getRadioValue('verbset')      || 'top100',
+        exerciseType:  getRadioValue('extype')       || 'en-to-da',
+        count:         getRadioValue('count')        || '10',
+        timeLimit:     getRadioValue('timelimit')    || '0',
+        audio:         getRadioValue('audio')        || 'on',
         practiceMode:  (typeof isLoggedIn === 'function' && isLoggedIn())
-                         ? (get('practicemode') || 'mixed')
+                         ? (getRadioValue('practicemode') || 'mixed')
                          : null,
       };
 
+      saveConfigPrefs(CONFIG_PREFS_KEYS.verbs, config);
       sessionStorage.setItem('verbConfig', JSON.stringify(config));
       window.location.href = 'exercise.html';
     }
 
-    // ── Firebase auth ──────────────────────────────────────
+    // ── Firebase auth + prefs ──────────────────────────────
     window.addEventListener('load', () => {
       twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
+      loadVerbPrefs();
       initAuth(
         () => { renderAuthButton(); setPracticeModeEnabled(true);  },
         () => { renderAuthButton(); setPracticeModeEnabled(false); }
