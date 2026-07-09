@@ -379,6 +379,11 @@ function _nRenderQuestion() {
   document.getElementById('question-prompt').textContent = q.prompt;
   document.getElementById('question-text').textContent   = q.question;
 
+  // Auto-play TTS for Danish-to-English, Gender, and Plural Class questions when audio is enabled
+  if ((q.type === 'da-to-en' || q.type === 'gender' || q.type === 'plural-class') && _nState.audio) {
+    _nPlayTTS(q.danishWord);
+  }
+
   // Don't Know button — logged-in only, not for pronunciation
   const dkContainer = document.getElementById('dont-know-container');
   if (dkContainer) {

@@ -252,6 +252,11 @@ function renderQuestion() {
   document.getElementById('question-prompt').textContent = q.prompt;
   document.getElementById('question-text').textContent = q.question;
 
+  // Auto-play TTS for Danish-to-English and Conjugation Group questions when audio is enabled
+  if ((q.type === 'da-to-en' || q.type === 'group') && state.audio) {
+    playTTS(q.danishVerb);
+  }
+
   // Hint (unused element guard)
   const hintEl = document.getElementById('question-hint');
   if (hintEl) hintEl.style.display = 'none';
