@@ -11,6 +11,8 @@ var _ns = {
   totalTime:    0,
   audio:        true,
   exerciseType: 'audio-to-num',
+  practiceMode: null,   // 'mixed' | 'learn' | 'review' | null (anonymous / untracked)
+  subject:      'numbers',
   currentTTS:   '',
 };
 
@@ -55,41 +57,53 @@ function playFeedbackTTS() {
 }
 
 /* ── Exercise Generation ─────────────────────────────────────── */
-function _makeQuestion(n, type) {
+function _makeQuestion(n, type, itemId) {
   const distractors = getNumberDistractors(n);
   const allNums     = [n, ...distractors];
 
   if (type === 'audio-to-num') {
     // Hear Danish audio → pick correct numeral
     const options = _numShuffle(allNums.map(x => ({ label: String(x), value: String(x) })));
-    return { type, number: n, ttsText: danishNumberTTS(n), correctValue: String(n), options };
+    return { type, number: n, itemId, ttsText: danishNumberTTS(n), correctValue: String(n), options };
   } else {
     // See numeral → pick correct written Danish form
     const options = _numShuffle(allNums.map(x => ({ label: danishNumber(x), value: danishNumber(x) })));
-    return { type, number: n, ttsText: danishNumberTTS(n), correctValue: danishNumber(n), options };
+    return { type, number: n, itemId, ttsText: danishNumberTTS(n), correctValue: danishNumber(n), options };
   }
 }
 
-function _generateExercises(config) {
+function _generateExercises(config, progressMap) {
   const count = parseInt(config.count, 10) || 10;
   const type  = config.exerciseType || 'audio-to-num';
-  const pool  = generateNumberPool(count);
-  return pool.map(n => _makeQuestion(n, type));
+
+  if (config.practiceMode && progressMap) {
+    const pool = generateAdaptiveNumberPool(progressMap, config.practiceMode, type, count);
+    return pool.map(({ number, bucketId }) => _makeQuestion(number, type, `${bucketId}_${type}`));
+  }
+
+  const pool = generateNumberPool(count);
+  return pool.map(n => _makeQuestion(n, type, null));
 }
 
 /* ── Init ────────────────────────────────────────────────────── */
-function initNumbersExercise() {
+async function initNumbersExercise() {
   const raw = sessionStorage.getItem('numberConfig');
   if (!raw) { window.location.href = 'numbers-config.html'; return; }
   const config = JSON.parse(raw);
 
-  _ns.exercises    = _generateExercises(config);
+  _ns.exerciseType = config.exerciseType || 'audio-to-num';
+  _ns.practiceMode = config.practiceMode || null;
+
+  const useAdaptive = _ns.practiceMode &&
+                      typeof isLoggedIn === 'function' && isLoggedIn();
+  const progressMap = useAdaptive ? await loadProgress('numbers') : null;
+
+  _ns.exercises    = _generateExercises(config, progressMap);
   _ns.index        = 0;
   _ns.score        = 0;
   _ns.answered     = false;
   _ns.totalTime    = config.timeLimit ? parseInt(config.timeLimit, 10) : 0;
   _ns.audio        = config.audio !== 'off';
-  _ns.exerciseType = config.exerciseType || 'audio-to-num';
 
   _nRenderQuestion();
 }
@@ -176,8 +190,16 @@ function _nHandleAnswer(selectedValue, clickedBtn) {
   clearInterval(_ns.timerInterval);
 
   const q         = _ns.exercises[_ns.index];
-  const isCorrect = selectedValue === q.correctValue;
+  const isTimeout = selectedValue === null && clickedBtn === null;
+  const isCorrect = !isTimeout && selectedValue === q.correctValue;
   if (isCorrect) _ns.score++;
+
+  // Record to Firestore (fire-and-forget — does not block the UI)
+  if (typeof recordAnswer === 'function' && typeof isLoggedIn === 'function' &&
+      isLoggedIn() && q.itemId) {
+    const resultType = isTimeout ? 'timeout' : (isCorrect ? 'correct' : 'wrong');
+    recordAnswer(_ns.subject, q.itemId, resultType).catch(console.error);
+  }
 
   document.querySelectorAll('.answer-btn').forEach(btn => {
     btn.disabled = true;

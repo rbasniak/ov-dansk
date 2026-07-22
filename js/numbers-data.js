@@ -137,6 +137,118 @@ function getNumberDistractors(n) {
   return result;
 }
 
+/* ── Number Buckets (for adaptive tracking) ──────────────────── */
+// Numbers span ~10,000 possible values, so we can't track individual
+// numbers with SM-2 the way we track words — a given exact number rarely
+// repeats. Instead we track *patterns* (13 buckets) that map onto the
+// actual sources of confusion in Danish numbers: the irregular teens,
+// each tens-word (especially the halv- group), and hundred/thousand
+// structure. Progress is stored per bucket (+ exercise type suffix),
+// exactly like verbs/nouns.
+const NUMBER_BUCKETS = [
+  { id: 'ones',              label: '1–9',                 min: 1,   max: 9   },
+  { id: 'teens',             label: '10–19 (teens)',       min: 10,  max: 19  },
+  { id: 'tyve',              label: '20s (tyve)',          min: 20,  max: 29  },
+  { id: 'tredive',           label: '30s (tredive)',       min: 30,  max: 39  },
+  { id: 'fyrre',             label: '40s (fyrre)',         min: 40,  max: 49  },
+  { id: 'halvtreds',         label: '50s (halvtreds)',     min: 50,  max: 59  },
+  { id: 'tres',              label: '60s (tres)',          min: 60,  max: 69  },
+  { id: 'halvfjerds',        label: '70s (halvfjerds)',    min: 70,  max: 79  },
+  { id: 'firs',              label: '80s (firs)',          min: 80,  max: 89  },
+  { id: 'halvfems',          label: '90s (halvfems)',      min: 90,  max: 99  },
+  { id: 'hundreds-simple',   label: 'Round hundreds',      test: n => n >= 100  && n <= 999  && n % 100 === 0 },
+  { id: 'hundreds-compound', label: 'Hundreds + remainder', test: n => n >= 100  && n <= 999  && n % 100 !== 0 },
+  { id: 'thousands',         label: 'Thousands',           min: 1000, max: 9999 },
+];
+
+// Classifies a number into its bucket definition.
+function classifyNumberBucket(n) {
+  for (const b of NUMBER_BUCKETS) {
+    if (b.test ? b.test(n) : (n >= b.min && n <= b.max)) return b;
+  }
+  return null;
+}
+
+// Generates a random number belonging to the given bucket, avoiding
+// duplicates already present in `usedSet` (best-effort).
+function _generateNumberInBucket(bucket, usedSet) {
+  let n, tries = 0;
+  do {
+    if (bucket.id === 'hundreds-simple')        n = _randInt(1, 9) * 100;
+    else if (bucket.id === 'hundreds-compound') n = _randInt(1, 9) * 100 + _randInt(1, 99);
+    else                                        n = _randInt(bucket.min, bucket.max);
+    tries++;
+  } while (usedSet.has(n) && tries < 50);
+  usedSet.add(n);
+  return n;
+}
+
+// Weighted bucket selection driven by SM-2 progress (mirrors the intent of
+// selectAdaptiveItems in firebase.js, adapted for a small fixed set of
+// buckets that must be sampled *with replacement* to fill a full session).
+//
+// progressMap – result of loadProgress('numbers'), keyed by `${bucketId}_${type}`
+// mode        – 'mixed' | 'learn' | 'review'
+// type        – 'audio-to-num' | 'num-to-written' (used to build the itemId)
+// count       – number of questions to generate
+function selectNumberBuckets(progressMap, mode, type, count) {
+  const now   = Date.now();
+  const stats = NUMBER_BUCKETS.map(bucket => {
+    const prog  = progressMap[`${bucket.id}_${type}`];
+    const reps  = prog ? (prog.repetitions || 0) : 0;
+    const isNew = !prog || reps === 0;
+    const isDue = !isNew && prog.nextReview <= now;
+    const total = prog ? (prog.correctCount || 0) + (prog.wrongCount || 0) + (prog.dontKnowCount || 0) : 0;
+    const errorRate = total > 0 ? (prog.wrongCount + (prog.dontKnowCount || 0)) / total : 0.3;
+    return { bucket, isNew, isDue, errorRate };
+  });
+
+  let pool;
+  if (mode === 'learn') {
+    pool = stats.filter(s => s.isNew);
+  } else if (mode === 'review') {
+    pool = stats.filter(s => s.isDue);
+  } else {
+    pool = stats;
+  }
+  if (pool.length === 0) pool = stats; // fallback: always have something to draw from
+
+  function weight(s) {
+    if (mode === 'learn')  return 1;
+    if (mode === 'review') return 1 + s.errorRate * 3;
+    // mixed: favour new buckets and due/weak buckets, but still let
+    // not-yet-due buckets show up occasionally (weighted by difficulty).
+    if (s.isNew) return 2.5;
+    if (s.isDue) return 1.5 + s.errorRate * 3;
+    return 0.4 + s.errorRate;
+  }
+
+  const weighted = pool.map(s => ({ ...s, w: weight(s) }));
+  const totalW   = weighted.reduce((sum, s) => sum + s.w, 0);
+
+  const chosen = [];
+  for (let i = 0; i < count; i++) {
+    let r = Math.random() * totalW;
+    let picked = weighted[weighted.length - 1];
+    for (const s of weighted) {
+      if (r < s.w) { picked = s; break; }
+      r -= s.w;
+    }
+    chosen.push(picked.bucket);
+  }
+  return chosen;
+}
+
+// Builds an adaptive pool of { number, bucketId } for the given mode/count.
+function generateAdaptiveNumberPool(progressMap, mode, type, count) {
+  const used    = new Set();
+  const buckets = selectNumberBuckets(progressMap, mode, type, count);
+  return buckets.map(bucket => ({
+    number:   _generateNumberInBucket(bucket, used),
+    bucketId: bucket.id,
+  }));
+}
+
 /* ── Number Pool Generation ──────────────────────────────────── */
 // ~75% from 1-99, ~20% from 100-999, ~5% from 1000-9999
 // 1000-9999 only when count >= 10 (min 1)

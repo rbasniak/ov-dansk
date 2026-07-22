@@ -29,6 +29,7 @@
 
   <script src="js/verbs-data.js"></script>
   <script src="js/nouns-data.js"></script>
+  <script src="js/numbers-data.js"></script>
 
   <script>
     window.addEventListener('load', () => {
@@ -151,7 +152,7 @@
           return {
             word,
             extra,
-            meaning:     item ? item.meaning : '',
+            meaning:     item ? (item.meaning || item.label || '') : '',
             repetitions: data.repetitions || 0,
             nextReview:  data.nextReview || null,
           };
@@ -213,19 +214,22 @@
       const container = document.getElementById('progress-content');
       container.innerHTML = '<p style="color:var(--text-muted);padding:20px 0">Loading…</p>';
 
-      const [verbsMap, nounsMap] = await Promise.all([
+      const [verbsMap, nounsMap, numbersMap] = await Promise.all([
         loadProgress('verbs'),
         loadProgress('nouns'),
+        loadProgress('numbers'),
       ]);
 
       const nVerbs = VERBS.length;
       const nNouns = NOUNS.length;
       const nVerbPron = _countPronunciationVerbs();
       const nNounPron = _countPronunciationNouns();
+      const nBuckets  = NUMBER_BUCKETS.length;
 
       _progressRowData = [];
-      const verbLookup = w => VERBS.find(v => v.inf === w);
-      const nounLookup = w => NOUNS.find(n => n.da === w);
+      const verbLookup    = w => VERBS.find(v => v.inf === w);
+      const nounLookup    = w => NOUNS.find(n => n.da === w);
+      const numberLookup  = w => NUMBER_BUCKETS.find(b => b.id === w);
 
       // ── Verbs ──
       const verbRows = [
@@ -253,9 +257,18 @@
           { title: '📖 Nouns', label: 'Pronunciation', map: nounsMap, substr: '_pronunciation_', lookup: nounLookup }),
       ];
 
+      // ── Numbers ──
+      const numberRows = [
+        _statBar('🔊 Hear the number',    getProgressStatsByType(numbersMap, '_audio-to-num',    nBuckets),
+          { title: '🔢 Numbers', label: 'Hear the number', map: numbersMap, substr: '_audio-to-num', lookup: numberLookup }),
+        _statBar('🔢 Written form',       getProgressStatsByType(numbersMap, '_num-to-written', nBuckets),
+          { title: '🔢 Numbers', label: 'Written form', map: numbersMap, substr: '_num-to-written', lookup: numberLookup }),
+      ];
+
       container.innerHTML =
         _subjectCard('📝 Verbs', 'verbs-config.html', verbRows) +
-        _subjectCard('📖 Nouns', 'nouns-config.html', nounRows);
+        _subjectCard('📖 Nouns', 'nouns-config.html', nounRows) +
+        _subjectCard('🔢 Numbers', 'numbers-config.html', numberRows);
     }
   </script>
 </body>

@@ -44,14 +44,18 @@ Practise using nouns organised by **semantic category** (food, animals, body, et
 
 ### 🔢 Numbers
 
-Randomly generated Danish number exercises. **Not tracked** — purely for drill practice.
+Randomly generated Danish number exercises.
 
 | Exercise type | Description |
 |---------------|-------------|
 | 🔊 Hear the number | Listen to a Danish number (TTS), pick the correct numeral |
 | 🔢 Find the written form | See a numeral, pick how it is written in Danish |
 
-Numbers are always random regardless of login status — there is no spaced repetition for numbers.
+**Adaptive tracking by pattern, not by exact number**: the number space (1–9999) is too large to track individual values with spaced repetition — a given exact number rarely repeats. Instead, numbers are classified into **13 pattern buckets** that map onto the real sources of confusion in Danish:
+
+`1–9` · `10–19 (teens)` · one bucket per tens-word (`tyve`, `tredive`, `fyrre`, `halvtreds`, `tres`, `halvfjerds`, `firs`, `halvfems` — the `halv-` group especially) · round hundreds · hundreds+remainder · thousands.
+
+When signed in, each bucket is tracked with the same SM-2 algorithm as verbs/nouns (independently per exercise type). Session generation is **weighted**, not purely random — buckets that are new, due for review, or historically error-prone are sampled more often, while mastered/no-due buckets appear less. Anonymous users (or "no practice mode") still get fully random numbers as before.
 
 ---
 
@@ -85,8 +89,8 @@ Knowing a word in one exercise type has **no effect** on any other type.
 
 ### What is NOT tracked
 
-- **Numbers** — always random, same for signed-in and anonymous users
 - **Unauthenticated sessions** — anonymous users can use the full app but nothing is saved
+- Numbers are tracked by **pattern bucket**, not by exact value (see the Numbers section above) — no practice mode selected means fully random, untracked numbers
 
 ### Practice modes (logged-in only)
 
