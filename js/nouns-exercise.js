@@ -348,7 +348,7 @@ async function initNounsExercise() {
     const pool        = _nFilterPool(config);
     const count       = config.count === 'all' ? Infinity : (parseInt(config.count, 10) || 10);
     const progressMap = await loadProgress('nouns');
-    const selected    = selectAdaptiveItems(pool, progressMap, config.practiceMode, count);
+    const selected    = selectAdaptiveItems(pool, progressMap, config.practiceMode, count, '_' + config.exerciseType);
     if (selected.length === 0) { _nShowEmptyState(config.practiceMode); return; }
     _nState.exercises = _nGenerateExercises(config, selected);
   } else {

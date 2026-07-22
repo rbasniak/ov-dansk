@@ -144,18 +144,23 @@ function _fbShuffle(arr) {
 // Splits items into review (due) and new (never seen) buckets,
 // then selects according to practice mode.
 //
-// items       – array of data objects; each must have an `.inf` or `.id` key
-//               used as the itemId stored in Firestore.
+// items       – array of data objects; each must have an `.inf` or `.id` key.
+//               The itemId stored in Firestore is `(item.inf ?? item.id) + idSuffix`
+//               (e.g. verb.inf + '_da-to-en'); pass the matching idSuffix so
+//               progress lookups actually hit. Pronunciation-style items whose
+//               `.id` already contains the full itemId should leave idSuffix ''.
 // progressMap – result of loadProgress()
 // mode        – 'mixed' | 'learn' | 'review'
 // count       – integer or Infinity (use all available items)
-function selectAdaptiveItems(items, progressMap, mode, count) {
+// idSuffix    – string appended to (item.inf ?? item.id) to form the itemId
+//               used as the progressMap key (default '' for pre-built ids).
+function selectAdaptiveItems(items, progressMap, mode, count, idSuffix = '') {
   const now         = Date.now();
   const reviewItems = [];
   const newItems    = [];
 
   for (const item of items) {
-    const id   = item.inf ?? item.id;
+    const id   = (item.inf ?? item.id) + idSuffix;
     const prog = progressMap[id];
     if (!prog || prog.repetitions === 0) newItems.push(item);
     else if (prog.nextReview <= now)     reviewItems.push(item);

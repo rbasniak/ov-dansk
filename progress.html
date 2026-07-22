@@ -78,16 +78,22 @@
       return total;
     }
 
-    function _statBar(label, stats) {
+    // Holds click-detail config for each rendered row, indexed to match the
+    // onclick handler embedded in the row's markup.
+    let _progressRowData = [];
+
+    function _statBar(label, stats, detailCfg) {
+      const idx = _progressRowData.push(detailCfg) - 1;
       const masteredPct = stats.total ? Math.round((stats.mastered / stats.total) * 100) : 0;
       const learningPct = stats.total ? Math.round((stats.learning / stats.total) * 100) : 0;
       const dueChip     = stats.dueCount > 0
         ? `<span class="progress-due-chip">⏰ ${stats.dueCount} due</span>`
         : '';
       return `
-        <div class="progress-type-row">
+        <div class="progress-type-row clickable" onclick="openProgressDetail(${idx})" role="button" tabindex="0"
+             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openProgressDetail(${idx});}">
           <div class="progress-type-header">
-            <span class="progress-type-label">${label}</span>
+            <span class="progress-type-label">${label}<span class="progress-type-chevron">›</span></span>
             ${dueChip}
             <span class="progress-type-counts">${stats.mastered} mastered · ${stats.learning} learning · ${stats.newCount} new</span>
           </div>
@@ -99,6 +105,95 @@
             <span class="progress-bar-pct">${masteredPct}%</span>
           </div>
         </div>`;
+    }
+
+    /* ── Word detail modal ───────────────────────────────────── */
+
+    // Splits an itemId like "at se_da-to-en" or "hus_pronunciation_plural"
+    // back into { word, extra } using the same substr used to filter it.
+    function _extractWord(itemId, substr) {
+      if (substr === '_pronunciation_') {
+        const idx = itemId.indexOf(substr);
+        return { word: itemId.slice(0, idx), extra: itemId.slice(idx + substr.length) };
+      }
+      const word = itemId.endsWith(substr) ? itemId.slice(0, -substr.length) : itemId.split(substr)[0];
+      return { word, extra: null };
+    }
+
+    function _humanizeKey(key) {
+      return key.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase());
+    }
+
+    function _formatDate(ts) {
+      return new Date(ts).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+
+    function _closeProgressModal() {
+      const el = document.getElementById('progress-modal-backdrop');
+      if (el) el.remove();
+      document.removeEventListener('keydown', _progressModalEscHandler);
+    }
+
+    function _progressModalEscHandler(e) {
+      if (e.key === 'Escape') _closeProgressModal();
+    }
+
+    function openProgressDetail(idx) {
+      const cfg = _progressRowData[idx];
+      if (!cfg) return;
+      const now = Date.now();
+
+      const entries = Object.entries(cfg.map)
+        .filter(([id]) => id.includes(cfg.substr))
+        .map(([id, data]) => {
+          const { word, extra } = _extractWord(id, cfg.substr);
+          const item = cfg.lookup(word);
+          return {
+            word,
+            extra,
+            meaning:     item ? item.meaning : '',
+            repetitions: data.repetitions || 0,
+            nextReview:  data.nextReview || null,
+          };
+        });
+
+      const byNextReview = (a, b) => (a.nextReview || 0) - (b.nextReview || 0);
+      const mastered = entries.filter(e => e.repetitions >= 3).sort(byNextReview);
+      const learning = entries.filter(e => e.repetitions > 0 && e.repetitions < 3).sort(byNextReview);
+
+      const renderRow = e => `
+        <div class="progress-word-row">
+          <div class="progress-word-main">
+            <div class="progress-word-da">${e.word}${e.extra ? ` <span style="color:var(--text-dim);font-weight:400">(${_humanizeKey(e.extra)})</span>` : ''}</div>
+            ${e.meaning ? `<div class="progress-word-meaning">${e.meaning}</div>` : ''}
+          </div>
+          <div class="progress-word-meta${e.nextReview && e.nextReview <= now ? ' due' : ''}">
+            ${e.nextReview ? _formatDate(e.nextReview) : '—'}
+          </div>
+        </div>`;
+
+      const body = `
+        <div class="progress-modal-section-title">✅ Mastered (${mastered.length})</div>
+        ${mastered.length ? mastered.map(renderRow).join('') : '<div class="progress-modal-empty">No mastered items yet.</div>'}
+        <div class="progress-modal-section-title">📘 Learning (${learning.length})</div>
+        ${learning.length ? learning.map(renderRow).join('') : '<div class="progress-modal-empty">No items in progress.</div>'}
+      `;
+
+      const backdrop = document.createElement('div');
+      backdrop.id = 'progress-modal-backdrop';
+      backdrop.className = 'progress-modal-backdrop';
+      backdrop.addEventListener('click', e => { if (e.target === backdrop) _closeProgressModal(); });
+      backdrop.innerHTML = `
+        <div class="progress-modal">
+          <div class="progress-modal-header">
+            <div class="progress-modal-title">${cfg.title} · ${cfg.label}</div>
+            <button class="progress-modal-close" aria-label="Close" onclick="_closeProgressModal()">✕</button>
+          </div>
+          <div class="progress-modal-body">${body}</div>
+        </div>`;
+      document.body.appendChild(backdrop);
+      document.addEventListener('keydown', _progressModalEscHandler);
+      twemoji.parse(backdrop, { folder: 'svg', ext: '.svg' });
     }
 
     function _subjectCard(title, configHref, rows) {
@@ -128,21 +223,34 @@
       const nVerbPron = _countPronunciationVerbs();
       const nNounPron = _countPronunciationNouns();
 
+      _progressRowData = [];
+      const verbLookup = w => VERBS.find(v => v.inf === w);
+      const nounLookup = w => NOUNS.find(n => n.da === w);
+
       // ── Verbs ──
       const verbRows = [
-        _statBar('🔤 Danish → English',  getProgressStatsByType(verbsMap, '_da-to-en', nVerbs)),
-        _statBar('🔤 English → Danish',  getProgressStatsByType(verbsMap, '_en-to-da', nVerbs)),
-        _statBar('🔄 Conjugation group', getProgressStatsByType(verbsMap, '_group',    nVerbs)),
-        _statBar('🗣 Pronunciation',      getProgressStatsByType(verbsMap, '_pronunciation_', nVerbPron)),
+        _statBar('🔤 Danish → English',  getProgressStatsByType(verbsMap, '_da-to-en', nVerbs),
+          { title: '📝 Verbs', label: 'Danish → English', map: verbsMap, substr: '_da-to-en', lookup: verbLookup }),
+        _statBar('🔤 English → Danish',  getProgressStatsByType(verbsMap, '_en-to-da', nVerbs),
+          { title: '📝 Verbs', label: 'English → Danish', map: verbsMap, substr: '_en-to-da', lookup: verbLookup }),
+        _statBar('🔄 Conjugation group', getProgressStatsByType(verbsMap, '_group',    nVerbs),
+          { title: '📝 Verbs', label: 'Conjugation group', map: verbsMap, substr: '_group', lookup: verbLookup }),
+        _statBar('🗣 Pronunciation',      getProgressStatsByType(verbsMap, '_pronunciation_', nVerbPron),
+          { title: '📝 Verbs', label: 'Pronunciation', map: verbsMap, substr: '_pronunciation_', lookup: verbLookup }),
       ];
 
       // ── Nouns ──
       const nounRows = [
-        _statBar('🔤 Danish → English',  getProgressStatsByType(nounsMap, '_da-to-en',    nNouns)),
-        _statBar('🔤 English → Danish',  getProgressStatsByType(nounsMap, '_en-to-da',    nNouns)),
-        _statBar('♂♀ Gender',            getProgressStatsByType(nounsMap, '_gender',       nNouns)),
-        _statBar('📚 Plural class',       getProgressStatsByType(nounsMap, '_plural-class', nNouns)),
-        _statBar('🗣 Pronunciation',      getProgressStatsByType(nounsMap, '_pronunciation_', nNounPron)),
+        _statBar('🔤 Danish → English',  getProgressStatsByType(nounsMap, '_da-to-en',    nNouns),
+          { title: '📖 Nouns', label: 'Danish → English', map: nounsMap, substr: '_da-to-en', lookup: nounLookup }),
+        _statBar('🔤 English → Danish',  getProgressStatsByType(nounsMap, '_en-to-da',    nNouns),
+          { title: '📖 Nouns', label: 'English → Danish', map: nounsMap, substr: '_en-to-da', lookup: nounLookup }),
+        _statBar('♂♀ Gender',            getProgressStatsByType(nounsMap, '_gender',       nNouns),
+          { title: '📖 Nouns', label: 'Gender', map: nounsMap, substr: '_gender', lookup: nounLookup }),
+        _statBar('📚 Plural class',       getProgressStatsByType(nounsMap, '_plural-class', nNouns),
+          { title: '📖 Nouns', label: 'Plural class', map: nounsMap, substr: '_plural-class', lookup: nounLookup }),
+        _statBar('🗣 Pronunciation',      getProgressStatsByType(nounsMap, '_pronunciation_', nNounPron),
+          { title: '📖 Nouns', label: 'Pronunciation', map: nounsMap, substr: '_pronunciation_', lookup: nounLookup }),
       ];
 
       container.innerHTML =

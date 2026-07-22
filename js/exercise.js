@@ -218,7 +218,7 @@ async function initExercise() {
   } else if (useAdaptive) {
     const count       = config.count === 'all' ? Infinity : (parseInt(config.count, 10) || 10);
     const progressMap = await loadProgress('verbs');
-    const selected    = selectAdaptiveItems(allVerbs, progressMap, config.practiceMode, count);
+    const selected    = selectAdaptiveItems(allVerbs, progressMap, config.practiceMode, count, '_' + config.exerciseType);
 
     if (selected.length === 0) {
       showEmptyState(config.practiceMode);
