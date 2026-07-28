@@ -143,25 +143,41 @@ function generateExercises(config, preSelectedVerbs = null) {
 // ─── TTS ──────────────────────────────────────────────────────────────────────
 
 let _ttsVerb = '';
+let _ttsAssetPlayer = null;
 
 function playTTS(text) {
   const speak = (text !== undefined && text !== '') ? text : _ttsVerb;
-  if (!window.speechSynthesis || !speak) return;
-  window.speechSynthesis.cancel();
+  if (!speak) return;
+  stopTTS();
 
   const btn = document.getElementById('tts-btn');
-  const utter = new SpeechSynthesisUtterance(speak);
-  utter.lang = 'da-DK';
-  utter.rate = 0.85;
+  const setPlaying = playing => btn && btn.classList.toggle('playing', playing);
+  const speakWithBrowserTTS = () => {
+    if (!window.speechSynthesis) {
+      setPlaying(false);
+      return;
+    }
 
-  utter.onstart = () => btn && btn.classList.add('playing');
-  utter.onend   = () => btn && btn.classList.remove('playing');
-  utter.onerror = () => btn && btn.classList.remove('playing');
+    const utter = new SpeechSynthesisUtterance(speak);
+    utter.lang = 'da-DK';
+    utter.rate = 0.85;
 
-  window.speechSynthesis.speak(utter);
+    utter.onstart = () => setPlaying(true);
+    utter.onend   = () => setPlaying(false);
+    utter.onerror = () => setPlaying(false);
+    window.speechSynthesis.speak(utter);
+  };
+
+  _ttsAssetPlayer = playAudioAsset(speak, {
+    onStart:    () => setPlaying(true),
+    onEnd:      () => setPlaying(false),
+    onFallback: speakWithBrowserTTS,
+  });
 }
 
 function stopTTS() {
+  _ttsAssetPlayer?.stop();
+  _ttsAssetPlayer = null;
   window.speechSynthesis && window.speechSynthesis.cancel();
   const btn = document.getElementById('tts-btn');
   if (btn) btn.classList.remove('playing');
