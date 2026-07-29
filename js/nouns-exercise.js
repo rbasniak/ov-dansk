@@ -223,6 +223,20 @@ function _nGenerateExercises(config, overridePool) {
 
 // ─── Noun Info Card ───────────────────────────────────────────────────────────
 
+function _nEscapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function _nTtsButton(speakText) {
+  const argument = _nEscapeHtml(JSON.stringify(speakText));
+  return `<button class="tts-mini" onclick="event.stopPropagation();_nPlayTTS(${argument})">🔊</button>`;
+}
+
 function _nBuildInfoCard(noun) {
   const hasForms = noun.pluralClass !== null;
 
@@ -239,10 +253,17 @@ function _nBuildInfoCard(noun) {
 
   return rows.map(r => {
     const btn = r.speakText
-      ? `<button class="tts-mini" onclick="event.stopPropagation();_nPlayTTS('${r.speakText.replace(/'/g, "\\'")}')">🔊</button>`
+      ? _nTtsButton(r.speakText)
       : `<span class="tts-mini-gap"></span>`;
-    return `<div class="conj-row"><span class="conj-label">${r.label}</span><span class="conj-value">${r.value}</span>${btn}</div>`;
-  }).join('');
+    return `<div class="conj-row"><span class="conj-label">${r.label}</span><span class="conj-value">${_nEscapeHtml(r.value)}</span>${btn}</div>`;
+  }).join('') + `
+    <div class="noun-example">
+      <span class="noun-example-label">Example</span>
+      <div class="noun-example-content">
+        <span class="noun-example-text">${_nEscapeHtml(noun.danish_example)}</span>
+        ${_nTtsButton(noun.danish_example)}
+      </div>
+    </div>`;
 }
 
 // ─── TTS ──────────────────────────────────────────────────────────────────────
@@ -529,7 +550,7 @@ function _nShowFeedback(isCorrect, q, isDontKnow = false) {
   _nCurrentWord = q.danishWord || '';
 
   const overlay     = document.getElementById('feedback-overlay');
-  overlay.className = 'feedback-overlay ' + (isCorrect ? 'success' : 'failure');
+  overlay.className = 'feedback-overlay noun-feedback ' + (isCorrect ? 'success' : 'failure');
 
   document.getElementById('feedback-icon').textContent = isCorrect ? '✓' : (isDontKnow ? '🤔' : '✗');
 

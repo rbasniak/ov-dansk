@@ -1,6 +1,6 @@
 # TTS Generator
 
-Generates the missing Danish pronunciation files for all noun forms and verb conjugations in `js/nouns-data.js` and `js/verbs-data.js`.
+Generates the missing Danish pronunciation files for all noun forms, noun example sentences, and verb conjugations in `js/nouns-data.js` and `js/verbs-data.js`.
 
 ## Configuration
 

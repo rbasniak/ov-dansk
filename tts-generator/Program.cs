@@ -79,7 +79,7 @@ foreach (var word in missingWords)
 static HashSet<string> ExtractWords(string repositoryRoot)
 {
     var words = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-    var fields = new[] { "da", "definiteSg", "plural", "definitePl", "inf", "present", "past", "perfect", "imp" };
+    var fields = new[] { "da", "definiteSg", "plural", "definitePl", "danish_example", "inf", "present", "past", "perfect", "imp" };
     var pattern = $@"(?m)\b(?:{string.Join("|", fields)})\s*:\s*'((?:\\.|[^'])*)'";
 
     foreach (var fileName in new[] { "nouns-data.js", "verbs-data.js" })

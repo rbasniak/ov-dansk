@@ -57,6 +57,7 @@ function makeEnToDaQuestion(verb, allVerbs) {
     question: verb.meaning,
     correctValue: verb.inf,
     danishVerb: verb.inf,
+    verbData: verb,
     options: options.map(v => ({ label: v.inf, value: v.inf })),
   };
 }
@@ -70,6 +71,7 @@ function makeDaToEnQuestion(verb, allVerbs) {
     question: verb.inf,
     correctValue: verb.meaning,
     danishVerb: verb.inf,
+    verbData: verb,
     options: options.map(v => ({ label: v.meaning, value: v.meaning })),
   };
 }
@@ -407,7 +409,7 @@ function showFeedback(isCorrect, q, isDontKnow = false) {
   _ttsVerb = q.danishVerb || '';
 
   const overlay       = document.getElementById('feedback-overlay');
-  overlay.className   = 'feedback-overlay ' + (isCorrect ? 'success' : 'failure');
+  overlay.className   = 'feedback-overlay verb-feedback ' + (isCorrect ? 'success' : 'failure');
 
   document.getElementById('feedback-icon').textContent  = isCorrect ? '✓' : (isDontKnow ? '🤔' : '✗');
 
@@ -424,60 +426,53 @@ function showFeedback(isCorrect, q, isDontKnow = false) {
   const ttsBtn        = document.getElementById('tts-btn');
   const ttsLabel      = document.getElementById('tts-verb-label');
 
-  if (q.type === 'pronunciation') {
-    // Show the word and replay TTS — no "correct answer" text needed
-    if (conjContainer) conjContainer.style.display = 'none';
-    subtitleEl.textContent = isCorrect ? '' : 'Listen again and practice:';
-    correctEl.textContent  = '';
-    if (state.audio) {
-      if (ttsBtn)   ttsBtn.style.display   = '';
-      if (ttsLabel) ttsLabel.style.display = '';
-    }
-    if (ttsLabel) ttsLabel.textContent = _ttsVerb;
-  } else if (q.type === 'group' && q.verbData) {
-    // Show conjugation table; rows have their own TTS buttons
-    subtitleEl.textContent = '';
-    correctEl.textContent  = isCorrect ? '' : ('→ ' + (q.options.find(o => o.value === q.correctValue) || {}).label);
-    if (ttsBtn)        ttsBtn.style.display        = 'none';
-    if (ttsLabel)      ttsLabel.style.display      = 'none';
-    if (conjContainer) {
-      conjContainer.style.display = 'block';
-      conjContainer.innerHTML     = buildConjTable(q.verbData);
-    }
-  } else {
-    if (conjContainer) conjContainer.style.display = 'none';
-    if (state.audio) {
-      if (ttsBtn)   ttsBtn.style.display   = '';
-      if (ttsLabel) ttsLabel.style.display = '';
-    }
-    if (isCorrect) {
-      subtitleEl.textContent = '';
-      correctEl.textContent  = '';
-    } else {
-      subtitleEl.textContent = 'The correct answer is:';
-      const correct = q.options.find(o => o.value === q.correctValue);
-      correctEl.textContent  = correct ? correct.label : q.correctValue;
-    }
-    if (ttsLabel) ttsLabel.textContent = _ttsVerb;
+  subtitleEl.textContent = q.type === 'pronunciation' && !isCorrect
+    ? 'Listen again and study the verb:'
+    : 'Verb details:';
+  correctEl.textContent = '';
+
+  if (conjContainer && q.verbData) {
+    conjContainer.style.display = 'block';
+    conjContainer.innerHTML = buildConjTable(q.verbData);
+  }
+
+  if (ttsBtn) ttsBtn.style.display = state.audio ? '' : 'none';
+  if (ttsLabel) {
+    ttsLabel.style.display = state.audio ? '' : 'none';
+    ttsLabel.textContent = _ttsVerb;
   }
 
   if (state.audio) playTTS();
 }
 
+function _vEscapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function _vTtsButton(speakText) {
+  const argument = _vEscapeHtml(JSON.stringify(speakText));
+  return `<button class="tts-mini" onclick="event.stopPropagation();playTTS(${argument})">🔊</button>`;
+}
+
 function buildConjTable(v) {
   const rows = [
-    { label: 'Infinitive', value: v.inf },
-    { label: 'Imperative', value: v.imp },
-    { label: 'Present',    value: v.present },
-    { label: 'Past',       value: v.past },
-    { label: 'Perfect',    value: v.perfect },
+    { label: 'Translation', value: v.meaning, speakText: null },
+    { label: 'Infinitive',  value: v.inf,     speakText: v.inf },
+    { label: 'Imperative',  value: v.imp,     speakText: v.imp },
+    { label: 'Present',     value: v.present, speakText: v.present },
+    { label: 'Past',        value: v.past,    speakText: v.past },
+    { label: 'Perfect',     value: v.perfect, speakText: v.perfect },
   ];
   return rows.map(r => {
-    const speakable = r.value && r.value !== '—';
-    const btn = speakable
-      ? `<button class="tts-mini" onclick="event.stopPropagation();playTTS('${r.value.replace(/'/g, "\\'")}')">🔊</button>`
+    const btn = r.speakText && r.speakText !== '—'
+      ? _vTtsButton(r.speakText)
       : `<span class="tts-mini-gap"></span>`;
-    return `<div class="conj-row"><span class="conj-label">${r.label}</span><span class="conj-value">${r.value}</span>${btn}</div>`;
+    return `<div class="conj-row"><span class="conj-label">${r.label}</span><span class="conj-value">${_vEscapeHtml(r.value)}</span>${btn}</div>`;
   }).join('');
 }
 
@@ -514,6 +509,7 @@ function makePronunciationQuestion(item) {
     prompt:       item.tenseName,
     question:     item.form,
     danishVerb:   item.form,
+    verbData:     item.verb,
     correctValue: 'correct',
     options: [
       { label: '✓  Got it right',        value: 'correct' },

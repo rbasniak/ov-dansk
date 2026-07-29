@@ -500,6 +500,11 @@ body {
 .feedback-overlay.success { background: var(--success-bg); }
 .feedback-overlay.failure { background: var(--error-bg); }
 .feedback-overlay.hidden  { display: none; }
+.feedback-overlay.noun-feedback,
+.feedback-overlay.verb-feedback {
+  justify-content: flex-start;
+  overflow-y: auto;
+}
 
 .feedback-icon {
   font-size: 90px;
@@ -734,6 +739,31 @@ body {
   width: 36px;
   height: 36px;
   display: inline-block;
+}
+
+.noun-example {
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.08);
+}
+.noun-example-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: rgba(255,255,255,0.45);
+}
+.noun-example-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.noun-example-text {
+  flex: 1;
+  font-size: 15px;
+  line-height: 1.4;
+  color: #fff;
 }
 
 
