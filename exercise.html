@@ -41,6 +41,8 @@
     <!-- Answer buttons (built dynamically) -->
     <div class="answer-grid" id="answer-grid"></div>
 
+    <div id="review-match-view" style="display:none"></div>
+
     <!-- Don't Know button — visible only when logged in -->
     <div id="dont-know-container" style="display:none">
       <button class="dont-know-btn" onclick="handleDontKnow()">🤔 I don't know</button>
@@ -116,6 +118,7 @@
   <!-- Data + Logic -->
   <script src="js/verbs-data.js"></script>
   <script src="js/audio-assets.js"></script>
+  <script src="js/review-match.js"></script>
   <script src="js/exercise.js"></script>
   <script>
     window.addEventListener('load', () => {

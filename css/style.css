@@ -483,6 +483,93 @@ body {
 }
 .answer-btn:disabled { cursor: default; }
 
+/* ── Review matching ───────────────────────────────────────── */
+#review-match-view {
+  width: 100%;
+  max-width: 680px;
+}
+.review-match-status {
+  margin: 4px 0 14px;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--text-muted);
+}
+.review-match-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.review-match-heading {
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.7px;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.review-match-slots {
+  display: grid;
+  gap: 10px;
+}
+.review-match-slot {
+  min-height: 62px;
+}
+.review-match-btn {
+  width: 100%;
+  min-height: 62px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.25;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+  transition: border-color 0.15s, background 0.15s;
+}
+.review-match-btn.selected {
+  border-color: var(--primary);
+  background: rgba(96,165,250,0.16);
+  box-shadow: 0 0 0 2px rgba(96,165,250,0.28);
+}
+.review-match-btn.review-match-wrong {
+  animation: review-match-wrong 0.5s ease;
+}
+.review-match-btn.review-match-correct {
+  animation: review-match-correct 0.5s ease;
+}
+.review-match-btn.review-match-leaving {
+  pointer-events: none;
+  animation: review-match-fade-out 2s ease forwards;
+}
+.review-match-btn.review-match-correct.review-match-leaving {
+  animation: review-match-correct 0.5s ease, review-match-fade-out 2s ease forwards;
+}
+.review-match-btn.review-match-entering {
+  animation: review-match-fade-in 2s ease both;
+}
+@keyframes review-match-wrong {
+  0%, 100% { background: var(--surface); }
+  50% { background: rgba(239,68,68,0.42); border-color: var(--error); }
+}
+@keyframes review-match-correct {
+  0%, 100% { background: var(--surface); }
+  50% { background: rgba(34,197,94,0.42); border-color: var(--success); }
+}
+@keyframes review-match-fade-out {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.92); }
+}
+@keyframes review-match-fade-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
 /* ── Feedback Overlay ─────────────────────────────────────── */
 .feedback-overlay {
   position: fixed;

@@ -345,7 +345,13 @@ async function initNounsExercise() {
   const useAdaptive = config.practiceMode &&
                       typeof isLoggedIn === 'function' && isLoggedIn();
 
-  if (config.exerciseType === 'pronunciation') {
+  if (useAdaptive && config.practiceMode === 'review') {
+    const progressMap = await loadProgress('nouns');
+    const items = _nounReviewItems(config, progressMap);
+    if (items.length === 0) { _nShowEmptyState('review'); return; }
+    _startNounReviewMatch(items);
+    return;
+  } else if (config.exerciseType === 'pronunciation') {
     const allItems = _nBuildPronunciationItems(_nFilterPool(config));
     if (useAdaptive) {
       const count       = config.count === 'all' ? Infinity : (parseInt(config.count, 10) || 10);
@@ -398,6 +404,56 @@ async function initNounsExercise() {
   if (ttsLabel) ttsLabel.style.display = _nState.audio ? '' : 'none';
 
   _nRenderQuestion();
+}
+
+function _nounReviewItems(config, progressMap) {
+  const pool = _nFilterPool(config);
+  const count = config.count === 'all' ? Infinity : (parseInt(config.count, 10) || 10);
+  if (config.exerciseType === 'pronunciation') {
+    return uniqueReviewMatchItems(
+      selectAdaptiveItems(_nBuildPronunciationItems(pool), progressMap, 'review', count)
+        .map(item => ({ id: item.id, danish: item.form, english: item.noun.meaning })));
+  }
+
+  return uniqueReviewMatchItems(
+    selectAdaptiveItems(pool, progressMap, 'review', count, '_' + config.exerciseType)
+      .map(noun => ({
+        id: `${noun.da}_${config.exerciseType}`,
+        danish: noun.da,
+        english: noun.meaning,
+      })));
+}
+
+function _startNounReviewMatch(items) {
+  _nState.exercises = items;
+  _nState.score = 0;
+  _nState.matchAttempts = 0;
+  document.querySelector('.question-card').style.display = 'none';
+  document.getElementById('answer-grid').style.display = 'none';
+  document.getElementById('dont-know-container').style.display = 'none';
+  document.getElementById('timer-bar').style.display = 'none';
+  const view = document.getElementById('review-match-view');
+  view.style.display = 'block';
+
+  new ReviewMatchGame({
+    container: view,
+    items,
+    onDanishSelected: item => { if (_nState.audio) _nPlayTTS(item); },
+    onResult: ({ correct, leftItem, rightItem }) => {
+      _nState.matchAttempts++;
+      if (correct) _nState.score++;
+      if (typeof recordAnswer === 'function' && typeof isLoggedIn === 'function' && isLoggedIn()) {
+        recordAnswer('nouns', leftItem.id, correct ? 'correct' : 'wrong').catch(console.error);
+        if (!correct && rightItem.id !== leftItem.id) {
+          recordAnswer('nouns', rightItem.id, 'wrong').catch(console.error);
+        }
+      }
+    },
+    onProgress: ({ correct, attempts }) => {
+      document.getElementById('progress-text').textContent = `${correct} / ${attempts || 0}`;
+    },
+    onComplete: () => _nShowSummary(),
+  });
 }
 
 // ─── Render Question ──────────────────────────────────────────────────────────
@@ -616,7 +672,7 @@ function _nShowSummary() {
   const summary = document.getElementById('summary-view');
   summary.style.display = 'flex';
 
-  const total      = _nState.exercises.length;
+  const total      = _nState.matchAttempts ?? _nState.exercises.length;
   const wrongCount = total - _nState.score - _nState.dontKnowCount;
   const pct        = Math.round((_nState.score / total) * 100);
 
