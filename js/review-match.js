@@ -64,9 +64,9 @@ class ReviewMatchGame {
     this.right = Array(REVIEW_MATCH_SLOT_COUNT).fill(null);
     this.selectedLeft = null;
     this.selectedRight = null;
-    this.resolving = false;
     this.correct = 0;
     this.attempts = 0;
+    this.totalItems = items.length;
 
     const initial = [];
     for (let index = 0; index < REVIEW_MATCH_SLOT_COUNT; index++) {
@@ -121,7 +121,6 @@ class ReviewMatchGame {
   }
 
   _select(side, index, button) {
-    if (this.resolving) return;
     const otherSide = side === 'left' ? 'right' : 'left';
     const previous = side === 'left' ? this.selectedLeft : this.selectedRight;
     previous?.button.classList.remove('selected');
@@ -143,7 +142,6 @@ class ReviewMatchGame {
     const left = this.selectedLeft;
     const right = this.selectedRight;
     const correct = left.item.id === right.item.id;
-    this.resolving = true;
     this.attempts++;
     if (correct) this.correct++;
     this.onResult?.({ correct, leftItem: left.item, rightItem: right.item });
@@ -152,31 +150,31 @@ class ReviewMatchGame {
     const className = correct ? 'review-match-correct' : 'review-match-wrong';
     left.button.classList.add(className);
     right.button.classList.add(className);
+    left.button.disabled = true;
+    right.button.disabled = true;
+    this.selectedLeft = null;
+    this.selectedRight = null;
 
     if (!correct) {
       window.setTimeout(() => {
         left.button.classList.remove('selected', className);
         right.button.classList.remove('selected', className);
-        this.selectedLeft = null;
-        this.selectedRight = null;
-        this.resolving = false;
+        left.button.disabled = false;
+        right.button.disabled = false;
       }, 500);
       return;
     }
 
+    const replacement = this.queue.replacement();
     left.button.classList.add('review-match-leaving');
     right.button.classList.add('review-match-leaving');
     window.setTimeout(() => {
       this.left[left.index] = null;
       this.right[right.index] = null;
-      const replacement = this.queue.replacement();
       this.left[left.index] = replacement.left;
       this.right[right.index] = replacement.right;
       this._renderSlot('left', left.index, replacement.left, true);
       this._renderSlot('right', right.index, replacement.right, true);
-      this.selectedLeft = null;
-      this.selectedRight = null;
-      this.resolving = false;
       this._updateProgress();
 
       if (this.queue.isEmpty && this.left.every(item => item === null)) {
@@ -187,7 +185,7 @@ class ReviewMatchGame {
 
   _updateProgress() {
     const status = this.container.querySelector('#review-match-status');
-    status.textContent = `${this.correct} correct / ${this.attempts} attempts`;
-    this.onProgress?.({ correct: this.correct, attempts: this.attempts });
+    status.textContent = `${this.correct} correct / ${this.totalItems} words`;
+    this.onProgress?.({ correct: this.correct, attempts: this.attempts, total: this.totalItems });
   }
 }

@@ -304,8 +304,9 @@ function _startVerbReviewMatch(items) {
         }
       }
     },
-    onProgress: ({ correct, attempts }) => {
-      document.getElementById('progress-text').textContent = `${correct} / ${attempts || 0}`;
+    onProgress: ({ correct, total }) => {
+      document.getElementById('progress-text').textContent = `${correct} / ${total}`;
+      document.getElementById('progress-fill').style.width = `${(correct / total) * 100}%`;
     },
     onComplete: () => showSummary(),
   });
