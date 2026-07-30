@@ -1,7 +1,11 @@
 'use strict';
 
 function _audioAssetFileName(text) {
-  return `${text.replace(/[%<>:"/\\|?*]/g, character => encodeURIComponent(character))}.mp3`;
+  let stem = text.replace(/[%<>:"/\\|?*]/g, character => encodeURIComponent(character));
+  if (/^(con|prn|aux|nul|com[1-9]|lpt[1-9])$/i.test(stem)) {
+    stem = [...stem].map(character => `%${character.charCodeAt(0).toString(16).padStart(2, '0').toUpperCase()}`).join('');
+  }
+  return `${stem}.mp3`;
 }
 
 function _audioAssetUrl(text) {

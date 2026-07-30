@@ -17,27 +17,43 @@ var _ns = {
 };
 
 /* ── TTS ─────────────────────────────────────────────────────── */
+var _numAssetPlayer = null;
+
 function _nPlayTTS(text) {
-  if (!window.speechSynthesis || !text) return;
-  window.speechSynthesis.cancel();
+  if (!text) return;
+  _nStopTTS();
   const ttsBtn  = document.getElementById('tts-btn');
   const qBtn    = document.getElementById('audio-play-btn');
-
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.lang  = 'da-DK';
-  utter.rate  = 0.85;
 
   const setPlaying = v => {
     if (ttsBtn) ttsBtn.classList.toggle('playing', v);
     if (qBtn)   qBtn.classList.toggle('playing', v);
   };
-  utter.onstart = () => setPlaying(true);
-  utter.onend   = () => setPlaying(false);
-  utter.onerror = () => setPlaying(false);
-  window.speechSynthesis.speak(utter);
+  const speakWithBrowserTTS = () => {
+    if (!window.speechSynthesis) {
+      setPlaying(false);
+      return;
+    }
+
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang  = 'da-DK';
+    utter.rate  = 0.85;
+    utter.onstart = () => setPlaying(true);
+    utter.onend   = () => setPlaying(false);
+    utter.onerror = () => setPlaying(false);
+    window.speechSynthesis.speak(utter);
+  };
+
+  _numAssetPlayer = playAudioAsset(text, {
+    onStart:    () => setPlaying(true),
+    onEnd:      () => setPlaying(false),
+    onFallback: speakWithBrowserTTS,
+  });
 }
 
 function _nStopTTS() {
+  _numAssetPlayer?.stop();
+  _numAssetPlayer = null;
   window.speechSynthesis && window.speechSynthesis.cancel();
   ['tts-btn', 'audio-play-btn'].forEach(id => {
     const el = document.getElementById(id);

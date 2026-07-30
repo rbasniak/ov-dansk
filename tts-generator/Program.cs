@@ -97,7 +97,48 @@ static HashSet<string> ExtractWords(string repositoryRoot)
         }
     }
 
+    foreach (var numberText in GetDanishNumberTtsTexts())
+    {
+        words.Add(numberText);
+    }
+
     return words;
+}
+
+static IEnumerable<string> GetDanishNumberTtsTexts()
+{
+    var ones = new[]
+    {
+        "", "en", "to", "tre", "fire", "fem", "seks", "syv", "otte", "ni",
+        "ti", "elleve", "tolv", "tretten", "fjorten", "femten",
+        "seksten", "sytten", "atten", "nitten",
+    };
+    var tens = new[] { "", "", "tyve", "tredive", "fyrre", "halvtreds", "tres", "halvfjerds", "firs", "halvfems" };
+
+    for (var number = 0; number <= 1000; number++)
+    {
+        yield return ToDanishNumber(number, ones, tens);
+    }
+}
+
+static string ToDanishNumber(int number, string[] ones, string[] tens)
+{
+    if (number == 0) return "nul";
+    if (number < 20) return ones[number];
+    if (number < 100)
+    {
+        var units = number % 10;
+        return units == 0 ? tens[number / 10] : $"{ones[units]} og {tens[number / 10]}";
+    }
+    if (number < 1000)
+    {
+        var hundreds = number / 100;
+        var remainder = number % 100;
+        var hundredsText = hundreds == 1 ? "hundrede" : $"{ones[hundreds]} hundrede";
+        return remainder == 0 ? hundredsText : $"{hundredsText} og {ToDanishNumber(remainder, ones, tens)}";
+    }
+
+    return "et tusind";
 }
 
 static string UnescapeJavaScriptString(string value) =>
@@ -121,8 +162,21 @@ static string ToAssetFileName(string word)
         }
     }
 
-    return $"{builder}.mp3";
+    var fileStem = builder.ToString();
+    if (IsReservedWindowsFileName(fileStem))
+    {
+        fileStem = string.Concat(Encoding.UTF8.GetBytes(fileStem).Select(byteValue => $"%{byteValue:X2}"));
+    }
+
+    return $"{fileStem}.mp3";
 }
+
+static bool IsReservedWindowsFileName(string value) =>
+    value.Equals("con", StringComparison.OrdinalIgnoreCase) ||
+    value.Equals("prn", StringComparison.OrdinalIgnoreCase) ||
+    value.Equals("aux", StringComparison.OrdinalIgnoreCase) ||
+    value.Equals("nul", StringComparison.OrdinalIgnoreCase) ||
+    Regex.IsMatch(value, @"^(com|lpt)[1-9]$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
 static string FindRepositoryRoot(string startingDirectory)
 {
