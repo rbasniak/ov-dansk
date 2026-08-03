@@ -361,6 +361,10 @@ function _startVerbListenReview() {
       if (step.kind === 'gap') {
         return;
       }
+      if (step.kind === 'separator') {
+        document.getElementById('listen-review-step').textContent = '— • —';
+        return;
+      }
       document.getElementById('listen-review-step').textContent =
         `${step.kind === 'en' ? '🇬🇧' : '🇩🇰'} ${step.label}: ${step.text}`;
     },

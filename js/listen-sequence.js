@@ -1,10 +1,87 @@
 'use strict';
 
 const LISTEN_GAP_MS = 1000;
-const LISTEN_BETWEEN_WORDS_MS = 1500;
+const LISTEN_BETWEEN_WORDS_MS = 800;
+
+let _separatorAudioContext = null;
+let _separatorResolve = null;
 
 function _listenDelay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function _getSeparatorAudioContext() {
+  if (typeof AudioContext === 'undefined' && typeof webkitAudioContext === 'undefined') {
+    return null;
+  }
+
+  if (!_separatorAudioContext) {
+    const Context = window.AudioContext || window.webkitAudioContext;
+    _separatorAudioContext = new Context();
+  }
+
+  return _separatorAudioContext;
+}
+
+function _stopWordSeparator() {
+  if (_separatorResolve) {
+    _separatorResolve();
+    _separatorResolve = null;
+  }
+}
+
+function _playWordSeparatorAsync() {
+  return new Promise(resolve => {
+    _separatorResolve = resolve;
+    const ctx = _getSeparatorAudioContext();
+
+    if (!ctx) {
+      _separatorResolve = null;
+      _listenDelay(450).then(resolve);
+      return;
+    }
+
+    const finish = () => {
+      if (_separatorResolve !== resolve) {
+        return;
+      }
+      _separatorResolve = null;
+      resolve();
+    };
+
+    const playTone = (frequency, startTime, duration, volume) => {
+      const oscillator = ctx.createOscillator();
+      const gain = ctx.createGain();
+      oscillator.type = 'sine';
+      oscillator.frequency.value = frequency;
+      gain.gain.setValueAtTime(0.0001, startTime);
+      gain.gain.exponentialRampToValueAtTime(volume, startTime + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+      oscillator.connect(gain);
+      gain.connect(ctx.destination);
+      oscillator.start(startTime);
+      oscillator.stop(startTime + duration + 0.01);
+    };
+
+    const startPlayback = () => {
+      const now = ctx.currentTime;
+      playTone(523.25, now, 0.16, 0.1);
+      playTone(659.25, now + 0.2, 0.2, 0.12);
+      setTimeout(finish, 480);
+    };
+
+    if (ctx.state === 'suspended') {
+      ctx.resume().then(startPlayback).catch(finish);
+    } else {
+      startPlayback();
+    }
+  });
+}
+
+async function _playBetweenWordsSeparator(onStep) {
+  onStep?.({ kind: 'separator', label: 'Next word' });
+  await _playWordSeparatorAsync();
+  await _listenDelay(LISTEN_BETWEEN_WORDS_MS);
 }
 
 function _speakBrowserAsync(text, lang) {
@@ -133,6 +210,7 @@ class ListenSequenceRunner {
     this._cancelled = true;
     this._player?.stop();
     this._player = null;
+    _stopWordSeparator();
     if (window.speechSynthesis) {
       window.speechSynthesis.cancel();
     }
@@ -190,7 +268,7 @@ function startListenReviewSession({ items, buildPlan, onItemStart, onStep, onCom
       }
 
       if (i < items.length - 1) {
-        await _listenDelay(LISTEN_BETWEEN_WORDS_MS);
+        await _playBetweenWordsSeparator(onStep);
       }
     }
 
@@ -212,6 +290,7 @@ function startListenReviewSession({ items, buildPlan, onItemStart, onStep, onCom
     stop() {
       stopped = true;
       currentRunner?.cancel();
+      _stopWordSeparator();
     },
   };
 }
