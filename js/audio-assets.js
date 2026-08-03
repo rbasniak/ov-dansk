@@ -1,5 +1,7 @@
 'use strict';
 
+const AUDIO_PLAYBACK_RATE = 0.90;
+
 function _audioAssetFileName(text) {
   let stem = text.replace(/[%<>:"/\\|?*]/g, character => encodeURIComponent(character));
   if (/^(con|prn|aux|nul|com[1-9]|lpt[1-9])$/i.test(stem)) {
@@ -19,6 +21,7 @@ function playAudioAsset(text, { onStart, onEnd, onFallback }) {
   }
 
   const audio = new Audio(_audioAssetUrl(text));
+  audio.playbackRate = AUDIO_PLAYBACK_RATE;
   let stopped = false;
   let completed = false;
 

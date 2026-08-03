@@ -89,6 +89,15 @@
         </div>
       </label>
 
+      <label class="radio-option" id="listen-review-opt" style="display:none">
+        <input type="radio" name="extype" value="listen-review" />
+        <div class="radio-dot"></div>
+        <div class="radio-text">
+          <span class="radio-label">🎧 Listen Review</span>
+          <span class="radio-sublabel">Autoplay full word review — Danish, meaning, group &amp; forms</span>
+        </div>
+      </label>
+
     </div>
   </div>
 
@@ -290,6 +299,20 @@
       setAllCategories(false);
     });
 
+    function setListenReviewVisible(visible) {
+      const opt = document.getElementById('listen-review-opt');
+      if (!opt) {
+        return;
+      }
+      opt.style.display = visible ? '' : 'none';
+      if (!visible) {
+        const radio = opt.querySelector('input[type="radio"]');
+        if (radio && radio.checked) {
+          setRadioValue('extype', 'en-to-da');
+        }
+      }
+    }
+
     function startExercise() {
       const categories = getCheckboxValues('category');
 
@@ -298,9 +321,15 @@
         return;
       }
 
+      const exerciseType = getRadioValue('extype') || 'en-to-da';
+      if (exerciseType === 'listen-review' && (typeof isDevUser !== 'function' || !isDevUser())) {
+        alert('Listen Review is not available.');
+        return;
+      }
+
       const config = {
         categories,
-        exerciseType:  getRadioValue('extype')       || 'en-to-da',
+        exerciseType,
         count:         getRadioValue('count')        || '10',
         timeLimit:     getRadioValue('timelimit')    || '0',
         audio:         getRadioValue('audio')        || 'on',
@@ -346,8 +375,16 @@
       twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
       loadNounPrefs();
       initAuth(
-        () => { renderAuthButton(); setPracticeModeEnabled(true);  },
-        () => { renderAuthButton(); setPracticeModeEnabled(false); }
+        () => {
+          renderAuthButton();
+          setPracticeModeEnabled(true);
+          setListenReviewVisible(typeof isDevUser === 'function' && isDevUser());
+        },
+        () => {
+          renderAuthButton();
+          setPracticeModeEnabled(false);
+          setListenReviewVisible(false);
+        }
       );
     });
   </script>

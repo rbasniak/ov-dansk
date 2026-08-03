@@ -25,6 +25,12 @@ let _currentUser = null;
 function getCurrentUser() { return _currentUser; }
 function isLoggedIn()     { return !!_currentUser; }
 
+const DEV_USER_EMAIL = 'rbasniak@gmail.com';
+
+function isDevUser() {
+  return _currentUser?.email === DEV_USER_EMAIL;
+}
+
 // Call once per page to register auth state listener.
 // Both callbacks fire exactly once on page load (cached state), then on changes.
 function initAuth(onLogin, onLogout) {

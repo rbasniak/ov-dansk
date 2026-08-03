@@ -570,6 +570,57 @@ body {
   to { opacity: 1; transform: scale(1); }
 }
 
+/* ── Listen review (autoplay) ─────────────────────────────── */
+#listen-review-view {
+  width: 100%;
+  max-width: 680px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.listen-review-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 18px;
+  border-radius: 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+}
+.listen-review-status {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-align: center;
+}
+.listen-review-word {
+  font-size: 32px;
+  font-weight: 900;
+  text-align: center;
+  letter-spacing: -0.5px;
+}
+.listen-review-meaning {
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--text-muted);
+}
+.listen-review-step {
+  min-height: 24px;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--accent);
+  padding: 8px 0 4px;
+}
+.listen-review-controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
 /* ── Feedback Overlay ─────────────────────────────────────── */
 .feedback-overlay {
   position: fixed;

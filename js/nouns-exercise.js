@@ -326,6 +326,8 @@ let _nState = {
   audio:         true,
   practiceMode:  null,
   subject:       'nouns',
+  exerciseType:  null,
+  listenSession: null,
 };
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
@@ -341,6 +343,29 @@ async function initNounsExercise() {
   _nState.totalTime      = config.timeLimit ? parseInt(config.timeLimit, 10) : 0;
   _nState.audio          = config.audio !== 'off';
   _nState.practiceMode   = config.practiceMode || null;
+  _nState.exerciseType   = config.exerciseType;
+
+  if (config.exerciseType === 'listen-review') {
+    if (typeof isDevUser !== 'function' || !isDevUser() ||
+        typeof isLoggedIn !== 'function' || !isLoggedIn()) {
+      window.location.href = 'nouns-config.html';
+      return;
+    }
+
+    const pool        = _nFilterPool(config);
+    const count       = config.count === 'all' ? pool.length : (parseInt(config.count, 10) || 10);
+    const progressMap = await loadProgress('nouns');
+    const selected    = selectAdaptiveItems(pool, progressMap, 'mixed', count);
+
+    if (selected.length === 0) {
+      _nShowEmptyState('mixed');
+      return;
+    }
+
+    _nState.exercises = selected;
+    _startNounListenReview();
+    return;
+  }
 
   const useAdaptive = config.practiceMode &&
                       typeof isLoggedIn === 'function' && isLoggedIn();
@@ -455,6 +480,69 @@ function _startNounReviewMatch(items) {
     },
     onComplete: () => _nShowSummary(),
   });
+}
+
+function _startNounListenReview() {
+  document.querySelector('.question-card').style.display = 'none';
+  document.getElementById('answer-grid').style.display = 'none';
+  document.getElementById('dont-know-container').style.display = 'none';
+  document.getElementById('timer-bar').style.display = 'none';
+  document.getElementById('review-match-view').style.display = 'none';
+  document.getElementById('listen-review-view').style.display = 'block';
+
+  _nState.listenSession = startListenReviewSession({
+    items: _nState.exercises,
+    buildPlan: buildNounListenPlan,
+    onItemStart: (noun, index, total) => {
+      const pct = (index / total) * 100;
+      document.getElementById('progress-fill').style.width = pct + '%';
+      document.getElementById('progress-text').textContent = `${index + 1} / ${total}`;
+      document.getElementById('listen-review-status').textContent = `Word ${index + 1} of ${total}`;
+      document.getElementById('listen-review-word').textContent = noun.da;
+      document.getElementById('listen-review-meaning').textContent = noun.meaning;
+      document.getElementById('listen-review-step').textContent = 'Starting…';
+      document.getElementById('listen-review-detail').innerHTML = _nBuildInfoCard(noun);
+    },
+    onStep: step => {
+      if (step.kind === 'gap') {
+        return;
+      }
+      document.getElementById('listen-review-step').textContent =
+        `${step.kind === 'en' ? '🇬🇧' : '🇩🇰'} ${step.label}: ${step.text}`;
+    },
+    onComplete: () => {
+      document.getElementById('progress-fill').style.width = '100%';
+      _nShowListenReviewSummary();
+    },
+  });
+}
+
+function skipListenReviewItem() {
+  _nState.listenSession?.skip();
+}
+
+function stopListenReview() {
+  _nState.listenSession?.stop();
+  _nState.listenSession = null;
+}
+
+function _nShowListenReviewSummary() {
+  document.getElementById('exercise-view').style.display = 'none';
+  document.getElementById('feedback-overlay').className = 'feedback-overlay hidden';
+
+  const summary = document.getElementById('summary-view');
+  summary.style.display = 'flex';
+
+  const total = _nState.exercises.length;
+  document.getElementById('score-number').textContent = total;
+  document.getElementById('score-total').textContent  = ' words';
+  document.getElementById('score-pct').textContent    = '';
+  document.getElementById('summary-msg').textContent  = '🎧 Listen review complete';
+
+  const breakdown = document.getElementById('session-breakdown');
+  if (breakdown) {
+    breakdown.style.display = 'none';
+  }
 }
 
 // ─── Render Question ──────────────────────────────────────────────────────────

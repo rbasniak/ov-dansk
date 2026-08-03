@@ -199,6 +199,8 @@ let state = {
   audio:         true,
   practiceMode:  null,  // 'mixed' | 'learn' | 'review' | null (anonymous)
   subject:       'verbs',
+  exerciseType:  null,
+  listenSession: null,
 };
 
 async function initExercise() {
@@ -215,6 +217,28 @@ async function initExercise() {
   state.audio         = config.audio !== 'off';
   state.practiceMode  = config.practiceMode || null;
   state.subject       = 'verbs';
+  state.exerciseType  = config.exerciseType;
+
+  if (config.exerciseType === 'listen-review') {
+    if (typeof isDevUser !== 'function' || !isDevUser() ||
+        typeof isLoggedIn !== 'function' || !isLoggedIn()) {
+      window.location.href = 'verbs-config.html';
+      return;
+    }
+
+    const count       = config.count === 'all' ? allVerbs.length : (parseInt(config.count, 10) || 10);
+    const progressMap = await loadProgress('verbs');
+    const selected    = selectAdaptiveItems(allVerbs, progressMap, 'mixed', count);
+
+    if (selected.length === 0) {
+      showEmptyState('mixed');
+      return;
+    }
+
+    state.exercises = selected;
+    _startVerbListenReview();
+    return;
+  }
 
   // ── Adaptive pool (logged-in + practice mode selected) ──
   const useAdaptive = config.practiceMode &&
@@ -310,6 +334,69 @@ function _startVerbReviewMatch(items) {
     },
     onComplete: () => showSummary(),
   });
+}
+
+function _startVerbListenReview() {
+  document.querySelector('.question-card').style.display = 'none';
+  document.getElementById('answer-grid').style.display = 'none';
+  document.getElementById('dont-know-container').style.display = 'none';
+  document.getElementById('timer-bar').style.display = 'none';
+  document.getElementById('review-match-view').style.display = 'none';
+  document.getElementById('listen-review-view').style.display = 'block';
+
+  state.listenSession = startListenReviewSession({
+    items: state.exercises,
+    buildPlan: buildVerbListenPlan,
+    onItemStart: (verb, index, total) => {
+      const pct = (index / total) * 100;
+      document.getElementById('progress-fill').style.width = pct + '%';
+      document.getElementById('progress-text').textContent = `${index + 1} / ${total}`;
+      document.getElementById('listen-review-status').textContent = `Word ${index + 1} of ${total}`;
+      document.getElementById('listen-review-word').textContent = verb.inf;
+      document.getElementById('listen-review-meaning').textContent = verb.meaning;
+      document.getElementById('listen-review-step').textContent = 'Starting…';
+      document.getElementById('listen-review-detail').innerHTML = buildConjTable(verb);
+    },
+    onStep: step => {
+      if (step.kind === 'gap') {
+        return;
+      }
+      document.getElementById('listen-review-step').textContent =
+        `${step.kind === 'en' ? '🇬🇧' : '🇩🇰'} ${step.label}: ${step.text}`;
+    },
+    onComplete: () => {
+      document.getElementById('progress-fill').style.width = '100%';
+      showListenReviewSummary();
+    },
+  });
+}
+
+function skipListenReviewItem() {
+  state.listenSession?.skip();
+}
+
+function stopListenReview() {
+  state.listenSession?.stop();
+  state.listenSession = null;
+}
+
+function showListenReviewSummary() {
+  document.getElementById('exercise-view').style.display = 'none';
+  document.getElementById('feedback-overlay').className = 'feedback-overlay hidden';
+
+  const summary = document.getElementById('summary-view');
+  summary.style.display = 'flex';
+
+  const total = state.exercises.length;
+  document.getElementById('score-number').textContent = total;
+  document.getElementById('score-total').textContent  = ' words';
+  document.getElementById('score-pct').textContent    = '';
+  document.getElementById('summary-msg').textContent  = '🎧 Listen review complete';
+
+  const breakdown = document.getElementById('session-breakdown');
+  if (breakdown) {
+    breakdown.style.display = 'none';
+  }
 }
 
 function renderQuestion() {
