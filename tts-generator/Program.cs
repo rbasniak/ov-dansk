@@ -102,6 +102,24 @@ static HashSet<string> ExtractWords(string repositoryRoot)
         words.Add(numberText);
     }
 
+    var idiomDataPath = Path.Combine(repositoryRoot, "js", "talemaader-data.json");
+    if (File.Exists(idiomDataPath))
+    {
+        using var idiomDocument = System.Text.Json.JsonDocument.Parse(File.ReadAllText(idiomDataPath, Encoding.UTF8));
+        foreach (var idiom in idiomDocument.RootElement.EnumerateArray())
+        {
+            foreach (var field in new[] { "danish", "example_danish" })
+            {
+                if (idiom.TryGetProperty(field, out var value) &&
+                    value.ValueKind == System.Text.Json.JsonValueKind.String &&
+                    value.GetString() is { Length: > 0 } text)
+                {
+                    words.Add(text);
+                }
+            }
+        }
+    }
+
     return words;
 }
 

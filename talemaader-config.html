@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Idioms – Configure | Danish Practice</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="js/firebase.js"></script>
+</head>
+<body>
+  <div class="header">
+    <a href="index.html" class="back-btn" aria-label="Back">←</a>
+    <div style="flex:1"><div class="page-title">Idioms</div></div>
+    <div id="auth-btn-container" style="display:flex;gap:6px;align-items:center"></div>
+  </div>
+  <p class="intro-text">Practice Danish talemåder: hear an expression, rate your recall, and study its meaning.</p>
+
+  <div class="section">
+    <div class="section-title">Number of Questions</div>
+    <div class="radio-group row" id="grp-count">
+      <label class="radio-option compact selected"><input type="radio" name="count" value="10" checked /><div class="radio-dot"></div><span class="radio-label">10</span></label>
+      <label class="radio-option compact"><input type="radio" name="count" value="20" /><div class="radio-dot"></div><span class="radio-label">20</span></label>
+      <label class="radio-option compact"><input type="radio" name="count" value="50" /><div class="radio-dot"></div><span class="radio-label">50</span></label>
+      <label class="radio-option compact"><input type="radio" name="count" value="all" /><div class="radio-dot"></div><span class="radio-label">ALL</span></label>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Audio</div>
+    <div class="radio-group" id="grp-audio">
+      <label class="radio-option selected"><input type="radio" name="audio" value="on" checked /><div class="radio-dot"></div><div class="radio-text"><span class="radio-label">🔊 Audio on</span><span class="radio-sublabel">Play the expression automatically after each rating</span></div></label>
+      <label class="radio-option"><input type="radio" name="audio" value="off" /><div class="radio-dot"></div><div class="radio-text"><span class="radio-label">🔇 Audio off</span><span class="radio-sublabel">Use the audio buttons manually</span></div></label>
+    </div>
+  </div>
+
+  <div class="section" id="practice-mode-section">
+    <div class="section-title">Practice Mode <span id="auth-required-badge" class="auth-required-badge">🔒 Sign in to unlock</span></div>
+    <div class="radio-group" id="grp-mode">
+      <label class="radio-option selected disabled"><input type="radio" name="practicemode" value="mixed" checked disabled /><div class="radio-dot"></div><div class="radio-text"><span class="radio-label">🔀 Mixed <span class="mode-badge">Default</span></span><span class="radio-sublabel">Due reviews mixed with new expressions</span></div></label>
+      <label class="radio-option disabled"><input type="radio" name="practicemode" value="learn" disabled /><div class="radio-dot"></div><div class="radio-text"><span class="radio-label">🌱 Learn</span><span class="radio-sublabel">Only new expressions</span></div></label>
+      <label class="radio-option disabled"><input type="radio" name="practicemode" value="review" disabled /><div class="radio-dot"></div><div class="radio-text"><span class="radio-label">🔁 Review</span><span class="radio-sublabel">Only expressions due for review</span></div></label>
+    </div>
+  </div>
+
+  <button class="start-btn" onclick="startExercise()">Start Practice →</button>
+  <script src="js/config-prefs.js"></script>
+  <script>
+    initRadioGroups();
+    function setPracticeModeEnabled(enabled) {
+      document.getElementById('auth-required-badge').style.display = enabled ? 'none' : '';
+      document.querySelectorAll('#practice-mode-section .radio-option').forEach(option => {
+        const radio = option.querySelector('input');
+        radio.disabled = !enabled;
+        option.classList.toggle('disabled', !enabled);
+        if (enabled) {
+          option.onclick = () => {
+            radio.checked = true;
+            document.querySelectorAll('#grp-mode .radio-option').forEach(item => item.classList.remove('selected'));
+            option.classList.add('selected');
+          };
+        } else option.onclick = null;
+      });
+    }
+    function startExercise() {
+      const config = {
+        count: getRadioValue('count') || '10',
+        audio: getRadioValue('audio') || 'on',
+        practiceMode: isLoggedIn() ? (getRadioValue('practicemode') || 'mixed') : null,
+      };
+      saveConfigPrefs(CONFIG_PREFS_KEYS.talemaader, config);
+      sessionStorage.setItem('talemaaderConfig', JSON.stringify(config));
+      window.location.href = 'talemaader-exercise.html';
+    }
+    window.addEventListener('load', () => {
+      twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
+      const prefs = loadConfigPrefs(CONFIG_PREFS_KEYS.talemaader);
+      applyCommonExercisePrefs(prefs, ['count', 'audio']);
+      initAuth(() => { renderAuthButton(); setPracticeModeEnabled(true); },
+               () => { renderAuthButton(); setPracticeModeEnabled(false); });
+    });
+  </script>
+</body>
+</html>

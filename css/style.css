@@ -919,6 +919,20 @@ body {
   background: rgba(59,130,246,0.1);
 }
 
+.answer-grid.four-options {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.idiom-info-container {
+  width: 100%;
+  max-width: 380px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.12);
+  margin: 4px 0;
+  text-align: left;
+}
+
 /* ── Auth Button ──────────────────────────────────────────── */
 .auth-btn {
   display: inline-flex;

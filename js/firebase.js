@@ -63,7 +63,16 @@ async function signOut() {
 //   repetitions 1 → base 1 day  → always 1 day  (no fuzz)
 //   repetitions 2 → base 6 days → range  4 – 8 days
 //   repetitions 3 → base 15 days→ range 11 – 19 days
-//   repetitions 4 → base ~37 days→ range ~30 – 44 days
+//   repetitions 4 → base 38 days → range 31 – 45 days
+//   repetitions 5 → base 95 days → range 88 – 102 days
+//   repetitions 6 → base 238 days → range 231 – 245 days
+//   repetitions 7 → base 595 days → range 588 – 602 days
+//   repetitions 8 → base 1488 days → range 1481 – 1495 days
+
+// Keep the early intervals explicit so that fuzz from one review does not
+// compound into the next one. After these levels, SM-2 keeps multiplying the
+// last interval by the ease factor.
+const SM2_BASE_INTERVALS = [1, 6, 15, 38, 95, 238, 595, 1488];
 
 function _applyFuzz(interval) {
   if (interval <= 1) return 1;
@@ -76,9 +85,10 @@ function _sm2Update(existing, quality) {
   let { interval = 0, easeFactor = 2.5, repetitions = 0 } = existing;
 
   if (quality >= 3) {
-    if (repetitions === 0)      interval = 1;
-    else if (repetitions === 1) interval = _applyFuzz(6);
-    else                        interval = _applyFuzz(Math.round(interval * easeFactor));
+    const baseInterval = SM2_BASE_INTERVALS[repetitions];
+    interval = baseInterval
+      ? _applyFuzz(baseInterval)
+      : _applyFuzz(Math.round(interval * easeFactor));
     repetitions++;
   } else {
     repetitions = 0;
@@ -115,10 +125,12 @@ async function loadProgress(subject) {
   }
 }
 
-// resultType: 'correct' | 'wrong' | 'dont_know' | 'timeout'
+// resultType: 'correct' | 'wrong' | 'dont_know' | 'hard' | 'good' | 'easy' | 'timeout'
 async function recordAnswer(subject, itemId, resultType) {
   if (!_currentUser) return;
-  const quality = { correct: 4, wrong: 1, dont_know: 1, timeout: 0 }[resultType] ?? 1;
+  const quality = {
+    correct: 4, wrong: 1, dont_know: 1, hard: 3, good: 4, easy: 5, timeout: 0,
+  }[resultType] ?? 1;
   try {
     const ref  = _itemRef(subject, itemId);
     const snap = await ref.get();

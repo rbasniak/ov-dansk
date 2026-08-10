@@ -113,6 +113,7 @@
     // Splits an itemId like "at se_da-to-en" or "hus_pronunciation_plural"
     // back into { word, extra } using the same substr used to filter it.
     function _extractWord(itemId, substr) {
+      if (!substr) return { word: itemId, extra: null };
       if (substr === '_pronunciation_') {
         const idx = itemId.indexOf(substr);
         return { word: itemId.slice(0, idx), extra: itemId.slice(idx + substr.length) };
@@ -152,7 +153,7 @@
           return {
             word,
             extra,
-            meaning:     item ? (item.meaning || item.label || '') : '',
+            meaning:     item ? (item.meaning || item.meaning_english || item.label || '') : '',
             repetitions: data.repetitions || 0,
             nextReview:  data.nextReview || null,
           };
@@ -214,10 +215,12 @@
       const container = document.getElementById('progress-content');
       container.innerHTML = '<p style="color:var(--text-muted);padding:20px 0">Loading…</p>';
 
-      const [verbsMap, nounsMap, numbersMap] = await Promise.all([
+      const [verbsMap, nounsMap, numbersMap, talemaaderMap, talemaaderData] = await Promise.all([
         loadProgress('verbs'),
         loadProgress('nouns'),
         loadProgress('numbers'),
+        loadProgress('talemaader'),
+        fetch('js/talemaader-data.json').then(response => response.json()),
       ]);
 
       const nVerbs = VERBS.length;
@@ -225,11 +228,13 @@
       const nVerbPron = _countPronunciationVerbs();
       const nNounPron = _countPronunciationNouns();
       const nBuckets  = NUMBER_BUCKETS.length;
+      const nTalemaader = talemaaderData.length;
 
       _progressRowData = [];
       const verbLookup    = w => VERBS.find(v => v.inf === w);
       const nounLookup    = w => NOUNS.find(n => n.da === w);
       const numberLookup  = w => NUMBER_BUCKETS.find(b => b.id === w);
+      const talemaaderLookup = w => talemaaderData.find(item => String(item.id) === String(w));
 
       // ── Verbs ──
       const verbRows = [
@@ -265,10 +270,16 @@
           { title: '🔢 Numbers', label: 'Written form', map: numbersMap, substr: '_num-to-written', lookup: numberLookup }),
       ];
 
+      const talemaaderRows = [
+        _statBar('💬 Expressions', getProgressStats(talemaaderMap, nTalemaader),
+          { title: '💬 Idioms', label: 'Expressions', map: talemaaderMap, substr: '', lookup: talemaaderLookup }),
+      ];
+
       container.innerHTML =
         _subjectCard('📝 Verbs', 'verbs-config.html', verbRows) +
         _subjectCard('📖 Nouns', 'nouns-config.html', nounRows) +
-        _subjectCard('🔢 Numbers', 'numbers-config.html', numberRows);
+        _subjectCard('🔢 Numbers', 'numbers-config.html', numberRows) +
+        _subjectCard('💬 Idioms', 'talemaader-config.html', talemaaderRows);
     }
   </script>
 </body>

@@ -5,6 +5,7 @@ const CONFIG_PREFS_KEYS = {
   nouns:   'dansk-noun-config-prefs',
   numbers: 'dansk-number-config-prefs',
   time:    'dansk-time-config-prefs',
+  talemaader: 'dansk-talemaader-config-prefs',
 };
 
 function loadConfigPrefs(key) {

@@ -57,6 +57,13 @@ Randomly generated Danish number exercises.
 
 When signed in, each bucket is tracked with the same SM-2 algorithm as verbs/nouns (independently per exercise type). Session generation is **weighted**, not purely random — buckets that are new, due for review, or historically error-prone are sampled more often, while mastered/no-due buckets appear less. Anonymous users (or "no practice mode") still get fully random numbers as before.
 
+### 💬 Idioms (Talemåder)
+
+Practise 100 common Danish expressions. Hear each expression, then rate your
+recall as **Don't know**, **Hard**, **Good**, or **Easy**. The rating controls the
+next review date through SM-2. The answer card includes the literal translation,
+English meaning, example sentence, and audio buttons for both Danish texts.
+
 ---
 
 ## Adaptive Learning & Progress Tracking
@@ -109,7 +116,15 @@ An item is considered **mastered** once you have answered it correctly **3 times
 | 1st correct | 1 day | always 1 day |
 | 2nd correct | 6 days | 4 – 8 days |
 | 3rd correct *(mastered)* | 15 days | 11 – 19 days |
-| 4th correct | ~37 days | ~30 – 44 days |
+| 4th correct | 38 days | 31 – 45 days |
+| 5th correct | 95 days | 88 – 102 days |
+| 6th correct | 238 days | 231 – 245 days |
+| 7th correct | 595 days | 588 – 602 days |
+| 8th correct | 1,488 days | 1,481 – 1,495 days |
+
+After the 8th consecutive correct answer, each new success continues multiplying
+the previous interval by the SM-2 ease factor (normally 2.5), so the interval
+keeps increasing. The randomisation is capped at 7 days for very long intervals.
 
 Any wrong answer or "I don't know" resets the streak and schedules the item for the next day.
 
@@ -175,7 +190,9 @@ ov-dansk/
     ├── nouns-data.js         Noun entries by category
     ├── nouns-exercise.js     Noun exercise logic
     ├── numbers-data.js       Number generation + distractor logic
-    └── numbers-exercise.js   Number exercise logic
+    ├── numbers-exercise.js  Number exercise logic
+    ├── idioms-exercise.js   Idiom exercise logic
+    └── talemaader-data.json Idiom source data
 ```
 
 ---
@@ -249,4 +266,3 @@ That's it — deploy to GitHub Pages and sign in with Google to start tracking p
 1. Go to **Settings → Pages** in this repository
 2. Set **Source** to `Deploy from a branch`, branch `main`, folder `/ (root)`
 3. Save — the app will be live at `https://rbasniak.github.io/ov-dansk`
-

@@ -1,0 +1,702 @@
+[
+  {
+    "id": 1,
+    "danish": "Koste det hvide ud af øjnene",
+    "literal_translation": "Cost the white out of the eyes",
+    "meaning_english": "Cost a fortune / be extremely expensive",
+    "example_danish": "Den jakke er flot, men den koster det hvide ud af øjnene."
+  },
+  {
+    "id": 2,
+    "danish": "Have det som blommen i et æg",
+    "literal_translation": "Have it like the yolk in an egg",
+    "meaning_english": "Live very comfortably and safely",
+    "example_danish": "Børnene har det som blommen i et æg hos deres bedsteforældre."
+  },
+  {
+    "id": 3,
+    "danish": "Koste spidsen af en jetjager",
+    "literal_translation": "Cost the tip of a fighter jet",
+    "meaning_english": "Be ridiculously expensive",
+    "example_danish": "Et nyt køkken kan hurtigt koste spidsen af en jetjager."
+  },
+  {
+    "id": 4,
+    "danish": "Ligge vandret (i luften)",
+    "literal_translation": "Lie horizontally (in the air)",
+    "meaning_english": "Be extremely busy / work very hard",
+    "example_danish": "Vi har ligget vandret hele ugen for at blive færdige med projektet."
+  },
+  {
+    "id": 5,
+    "danish": "Sove som en sten",
+    "literal_translation": "Sleep like a stone",
+    "meaning_english": "Sleep very deeply",
+    "example_danish": "Jeg var så træt, at jeg sov som en sten hele natten."
+  },
+  {
+    "id": 6,
+    "danish": "Det blæser en halv pelikan",
+    "literal_translation": "It's blowing half a pelican",
+    "meaning_english": "It's very windy",
+    "example_danish": "Tag en varm jakke på – det blæser en halv pelikan udenfor."
+  },
+  {
+    "id": 7,
+    "danish": "Der er ingen ko på isen",
+    "literal_translation": "There is no cow on the ice",
+    "meaning_english": "There's no problem / no danger",
+    "example_danish": "Bare vi afleverer inden fredag, er der ingen ko på isen."
+  },
+  {
+    "id": 8,
+    "danish": "Alle veje fører til Rom",
+    "literal_translation": "All roads lead to Rome",
+    "meaning_english": "There are many ways to reach the same goal",
+    "example_danish": "Du kan løse opgaven på flere måder – alle veje fører til Rom."
+  },
+  {
+    "id": 9,
+    "danish": "Hold da helt ferie!",
+    "literal_translation": "Have a whole vacation!",
+    "meaning_english": "Wow! / Good grief! / That's amazing!",
+    "example_danish": "Hold da helt ferie, hvor er jeres nye hus flot!"
+  },
+  {
+    "id": 10,
+    "danish": "Før fanden får sko på",
+    "literal_translation": "Before the devil gets his shoes on",
+    "meaning_english": "Very early in the morning",
+    "example_danish": "Jeg skal op før fanden får sko på for at nå flyet."
+  },
+  {
+    "id": 11,
+    "danish": "Slå to fluer med ét smæk",
+    "literal_translation": "Hit two flies with one swat",
+    "meaning_english": "Accomplish two things at once",
+    "example_danish": "Jeg cykler på arbejde og får motion samtidig – så slår jeg to fluer med ét smæk."
+  },
+  {
+    "id": 12,
+    "danish": "Bide i det sure æble",
+    "literal_translation": "Bite into the sour apple",
+    "meaning_english": "Accept or do something unpleasant but necessary",
+    "example_danish": "Jeg må bide i det sure æble og betale regningen."
+  },
+  {
+    "id": 13,
+    "danish": "Gå over åen efter vand",
+    "literal_translation": "Cross the stream to get water",
+    "meaning_english": "Make something unnecessarily complicated",
+    "example_danish": "Hvorfor køre helt til Aalborg efter det? Det er at gå over åen efter vand."
+  },
+  {
+    "id": 14,
+    "danish": "Have rent mel i posen",
+    "literal_translation": "Have clean flour in the bag",
+    "meaning_english": "Have nothing to hide / be innocent",
+    "example_danish": "Hvis du har rent mel i posen, har du ikke noget at være nervøs for."
+  },
+  {
+    "id": 15,
+    "danish": "Male fanden på væggen",
+    "literal_translation": "Paint the devil on the wall",
+    "meaning_english": "Imagine or predict the worst",
+    "example_danish": "Lad være med at male fanden på væggen; vi ved ikke endnu, om noget er galt."
+  },
+  {
+    "id": 16,
+    "danish": "Tage benene på nakken",
+    "literal_translation": "Put your legs on your neck",
+    "meaning_english": "Run off / hurry away",
+    "example_danish": "Da det begyndte at regne, tog vi benene på nakken og løb hjem."
+  },
+  {
+    "id": 17,
+    "danish": "Stå på egne ben",
+    "literal_translation": "Stand on one's own legs",
+    "meaning_english": "Be independent",
+    "example_danish": "Efter universitetet vil hun gerne flytte hjemmefra og stå på egne ben."
+  },
+  {
+    "id": 18,
+    "danish": "Træde i spinaten",
+    "literal_translation": "Step in the spinach",
+    "meaning_english": "Make a blunder / say or do something stupid",
+    "example_danish": "Jeg trådte virkelig i spinaten, da jeg spurgte hende om hendes eksmand."
+  },
+  {
+    "id": 19,
+    "danish": "Købe katten i sækken",
+    "literal_translation": "Buy the cat in the sack",
+    "meaning_english": "Buy something unseen and get cheated",
+    "example_danish": "Undersøg bilen grundigt, så du ikke køber katten i sækken."
+  },
+  {
+    "id": 20,
+    "danish": "Gå agurk",
+    "literal_translation": "Go cucumber",
+    "meaning_english": "Go crazy / become very angry or excited",
+    "example_danish": "Min chef gik helt agurk, da han så fejlen."
+  },
+  {
+    "id": 21,
+    "danish": "Have mange jern i ilden",
+    "literal_translation": "Have many irons in the fire",
+    "meaning_english": "Have many things going on simultaneously",
+    "example_danish": "Hun har altid mange jern i ilden og arbejder på tre projekter samtidig."
+  },
+  {
+    "id": 22,
+    "danish": "Holde hovedet koldt",
+    "literal_translation": "Keep one's head cold",
+    "meaning_english": "Remain calm and think clearly",
+    "example_danish": "Når noget går galt, er det vigtigt at holde hovedet koldt."
+  },
+  {
+    "id": 23,
+    "danish": "Have is i maven",
+    "literal_translation": "Have ice in one's stomach",
+    "meaning_english": "Remain calm and patient under pressure",
+    "example_danish": "Du skal have is i maven og vente på det rigtige tilbud."
+  },
+  {
+    "id": 24,
+    "danish": "Slå koldt vand i blodet",
+    "literal_translation": "Put cold water in the blood",
+    "meaning_english": "Calm down / restrain one's excitement",
+    "example_danish": "Lad os slå koldt vand i blodet, før vi træffer en beslutning."
+  },
+  {
+    "id": 25,
+    "danish": "Holde tungen lige i munden",
+    "literal_translation": "Keep the tongue straight in the mouth",
+    "meaning_english": "Concentrate carefully on something difficult",
+    "example_danish": "Man skal holde tungen lige i munden, når man udfylder den formular."
+  },
+  {
+    "id": 26,
+    "danish": "Der er ugler i mosen",
+    "literal_translation": "There are owls in the bog",
+    "meaning_english": "Something is suspicious / something is wrong",
+    "example_danish": "Han plejer aldrig at komme for sent, så der må være ugler i mosen."
+  },
+  {
+    "id": 27,
+    "danish": "Have en høne at plukke med nogen",
+    "literal_translation": "Have a hen to pluck with someone",
+    "meaning_english": "Have an issue to settle with someone",
+    "example_danish": "Jeg har en høne at plukke med dig om det, der skete i går."
+  },
+  {
+    "id": 28,
+    "danish": "Holde kortene tæt (ind) til kroppen",
+    "literal_translation": "Keep the cards close to the body",
+    "meaning_english": "Keep plans or information secret",
+    "example_danish": "Virksomheden holder kortene tæt til kroppen om den nye strategi."
+  },
+  {
+    "id": 29,
+    "danish": "Gå i for små sko",
+    "literal_translation": "Walk in shoes that are too small",
+    "meaning_english": "Be petty or narrow-minded",
+    "example_danish": "Jeg synes, du går i for små sko, hvis du bliver sur over sådan en lille fejl."
+  },
+  {
+    "id": 30,
+    "danish": "Slippe katten ud af sækken",
+    "literal_translation": "Let the cat out of the sack",
+    "meaning_english": "Reveal a secret",
+    "example_danish": "Han kom til at slippe katten ud af sækken og fortalte om overraskelsesfesten."
+  },
+  {
+    "id": 31,
+    "danish": "Blive lang i ansigtet",
+    "literal_translation": "Become long in the face",
+    "meaning_english": "Look disappointed or unpleasantly surprised",
+    "example_danish": "Han blev lang i ansigtet, da han så regningen."
+  },
+  {
+    "id": 32,
+    "danish": "Tale lige/rent ud af posen",
+    "literal_translation": "Speak straight/clean out of the bag",
+    "meaning_english": "Speak frankly and directly",
+    "example_danish": "Lad os tale rent ud af posen: planen fungerer ikke."
+  },
+  {
+    "id": 33,
+    "danish": "Tone rent flag",
+    "literal_translation": "Show a clean flag",
+    "meaning_english": "State one's true position or intentions openly",
+    "example_danish": "Nu må kommunen tone rent flag og fortælle, hvad den egentlig vil."
+  },
+  {
+    "id": 34,
+    "danish": "Gøre rent bord",
+    "literal_translation": "Make a clean table",
+    "meaning_english": "Clear things up and start afresh",
+    "example_danish": "Han fortalte sandheden for at gøre rent bord."
+  },
+  {
+    "id": 35,
+    "danish": "Sælge nogen en trepattet ko",
+    "literal_translation": "Sell someone a three-teated cow",
+    "meaning_english": "Deceive someone by misrepresenting something",
+    "example_danish": "Du skal ikke prøve at sælge mig en trepattet ko – jeg har læst kontrakten."
+  },
+  {
+    "id": 36,
+    "danish": "Arbejde som en hest",
+    "literal_translation": "Work like a horse",
+    "meaning_english": "Work extremely hard",
+    "example_danish": "Vi har arbejdet som heste hele weekenden."
+  },
+  {
+    "id": 37,
+    "danish": "Begynde på en frisk",
+    "literal_translation": "Begin on a fresh start",
+    "meaning_english": "Start over",
+    "example_danish": "Efter ferien vil jeg begynde på en frisk."
+  },
+  {
+    "id": 38,
+    "danish": "Bide i græsset",
+    "literal_translation": "Bite the grass",
+    "meaning_english": "Lose / suffer defeat",
+    "example_danish": "Efter fem sejre måtte holdet endelig bide i græsset."
+  },
+  {
+    "id": 39,
+    "danish": "Binde nogen noget på ærmet",
+    "literal_translation": "Tie something onto someone's sleeve",
+    "meaning_english": "Make someone believe something untrue",
+    "example_danish": "Du kan ikke binde mig den historie på ærmet."
+  },
+  {
+    "id": 40,
+    "danish": "Blive dolket i ryggen",
+    "literal_translation": "Be stabbed in the back",
+    "meaning_english": "Be betrayed",
+    "example_danish": "Han følte sig dolket i ryggen af sin bedste ven."
+  },
+  {
+    "id": 41,
+    "danish": "Blive varm om hjertet",
+    "literal_translation": "Become warm around the heart",
+    "meaning_english": "Feel touched, happy or affectionate",
+    "example_danish": "Jeg bliver helt varm om hjertet, når børnene leger sammen."
+  },
+  {
+    "id": 42,
+    "danish": "Bringe nogen i fedtefadet",
+    "literal_translation": "Bring someone into the grease dish",
+    "meaning_english": "Get someone into trouble",
+    "example_danish": "Din kommentar bragte mig virkelig i fedtefadet hos chefen."
+  },
+  {
+    "id": 43,
+    "danish": "Bringe noget på banen",
+    "literal_translation": "Bring something onto the field",
+    "meaning_english": "Introduce a subject for discussion",
+    "example_danish": "Hun bragte lønnen på banen under mødet."
+  },
+  {
+    "id": 44,
+    "danish": "Bruge albuerne",
+    "literal_translation": "Use the elbows",
+    "meaning_english": "Push one's way forward, often aggressively",
+    "example_danish": "Man skal nogle gange bruge albuerne for at komme frem i den branche."
+  },
+  {
+    "id": 45,
+    "danish": "Brænde fingrene",
+    "literal_translation": "Burn one's fingers",
+    "meaning_english": "Get hurt or suffer from a bad decision",
+    "example_danish": "Han brændte fingrene på sin første investering."
+  },
+  {
+    "id": 46,
+    "danish": "Brænde sit lys i begge ender",
+    "literal_translation": "Burn one's candle at both ends",
+    "meaning_english": "Exhaust oneself by doing too much",
+    "example_danish": "Du arbejder om dagen og studerer om natten – pas på, du ikke brænder dit lys i begge ender."
+  },
+  {
+    "id": 47,
+    "danish": "Bære frugt",
+    "literal_translation": "Bear fruit",
+    "meaning_english": "Produce results",
+    "example_danish": "Alt det hårde arbejde begynder endelig at bære frugt."
+  },
+  {
+    "id": 48,
+    "danish": "Dele sol og vind lige",
+    "literal_translation": "Divide sun and wind equally",
+    "meaning_english": "Treat everyone fairly",
+    "example_danish": "Forældrene prøvede at dele sol og vind lige mellem børnene."
+  },
+  {
+    "id": 49,
+    "danish": "Den hellige grav er vel forvaret",
+    "literal_translation": "The Holy Sepulchre is safely guarded",
+    "meaning_english": "Everything is safely taken care of",
+    "example_danish": "Nu er billetterne købt og hotellet booket, så den hellige grav er vel forvaret."
+  },
+  {
+    "id": 50,
+    "danish": "Den må du længere ud på landet med",
+    "literal_translation": "You'll have to go farther into the countryside with that one",
+    "meaning_english": "I don't believe that story or excuse",
+    "example_danish": "Du siger, at hunden spiste dine lektier? Den må du længere ud på landet med!"
+  },
+  {
+    "id": 51,
+    "danish": "Der ligger en hund begravet",
+    "literal_translation": "There is a dog buried there",
+    "meaning_english": "There is a hidden problem or catch",
+    "example_danish": "Prisen virker næsten for god, så der ligger nok en hund begravet et sted."
+  },
+  {
+    "id": 52,
+    "danish": "Der skal andre boller på suppen",
+    "literal_translation": "There need to be different dumplings in the soup",
+    "meaning_english": "Things need to change / tougher measures are needed",
+    "example_danish": "Hvis vi skal nå deadline, skal der andre boller på suppen."
+  },
+  {
+    "id": 53,
+    "danish": "Det er der ingen ben i",
+    "literal_translation": "There are no bones in that",
+    "meaning_english": "That's easy / no problem",
+    "example_danish": "Kan du installere programmet? Ja, det er der ingen ben i."
+  },
+  {
+    "id": 54,
+    "danish": "Det kører på skinner",
+    "literal_translation": "It runs on rails",
+    "meaning_english": "Everything is going smoothly",
+    "example_danish": "Efter en svær start kører projektet nu på skinner."
+  },
+  {
+    "id": 55,
+    "danish": "Det løber én koldt ned ad ryggen",
+    "literal_translation": "It runs cold down one's back",
+    "meaning_english": "It gives one the chills",
+    "example_danish": "Det løb mig koldt ned ad ryggen, da jeg hørte lyden."
+  },
+  {
+    "id": 56,
+    "danish": "En bjørnetjeneste",
+    "literal_translation": "A bear service",
+    "meaning_english": "A well-meant action that actually harms someone",
+    "example_danish": "Du gør ham en bjørnetjeneste, hvis du altid løser hans problemer for ham."
+  },
+  {
+    "id": 57,
+    "danish": "En by i Rusland",
+    "literal_translation": "A town in Russia",
+    "meaning_english": "Something completely unfamiliar to someone",
+    "example_danish": "Regnskab er en by i Rusland for mig."
+  },
+  {
+    "id": 58,
+    "danish": "En engel gik gennem stuen",
+    "literal_translation": "An angel walked through the room",
+    "meaning_english": "Everyone suddenly becomes silent",
+    "example_danish": "Pludselig sagde ingen noget. Det var, som om en engel gik gennem stuen."
+  },
+  {
+    "id": 59,
+    "danish": "En fjer i hatten",
+    "literal_translation": "A feather in the hat",
+    "meaning_english": "Something to be proud of / an achievement",
+    "example_danish": "Prisen er virkelig en fjer i hatten for hele teamet."
+  },
+  {
+    "id": 60,
+    "danish": "En streg i regningen",
+    "literal_translation": "A line in the calculation",
+    "meaning_english": "An unexpected setback",
+    "example_danish": "Det var en streg i regningen, at bilen gik i stykker dagen før ferien."
+  },
+  {
+    "id": 61,
+    "danish": "En varm kartoffel",
+    "literal_translation": "A hot potato",
+    "meaning_english": "A controversial or difficult issue nobody wants to handle",
+    "example_danish": "Skattereformen er blevet en varm kartoffel for regeringen."
+  },
+  {
+    "id": 62,
+    "danish": "Ende i hat og briller",
+    "literal_translation": "End in hat and glasses",
+    "meaning_english": "End in chaos, nonsense or farce",
+    "example_danish": "Uden en klar plan ender hele projektet i hat og briller."
+  },
+  {
+    "id": 63,
+    "danish": "Falde i god jord",
+    "literal_translation": "Fall into good soil",
+    "meaning_english": "Be well received",
+    "example_danish": "Forslaget faldt i god jord hos medarbejderne."
+  },
+  {
+    "id": 64,
+    "danish": "Falde i staver",
+    "literal_translation": "Fall into staves",
+    "meaning_english": "Become lost in thought",
+    "example_danish": "Jeg faldt helt i staver og glemte, hvad jeg skulle sige."
+  },
+  {
+    "id": 65,
+    "danish": "Falde på halen",
+    "literal_translation": "Fall on one's backside",
+    "meaning_english": "Be very impressed",
+    "example_danish": "Jeg faldt helt på halen over udsigten fra hotellet."
+  },
+  {
+    "id": 66,
+    "danish": "Fanden er løs i Laksegade",
+    "literal_translation": "The devil is loose in Salmon Street",
+    "meaning_english": "There is complete chaos / a huge commotion",
+    "example_danish": "Da alarmen gik, var fanden løs i Laksegade."
+  },
+  {
+    "id": 67,
+    "danish": "Feje for egen dør",
+    "literal_translation": "Sweep in front of one's own door",
+    "meaning_english": "Deal with your own faults before criticizing others",
+    "example_danish": "Han burde feje for egen dør, før han kritiserer os."
+  },
+  {
+    "id": 68,
+    "danish": "Feje noget ind under gulvtæppet",
+    "literal_translation": "Sweep something under the carpet",
+    "meaning_english": "Hide or ignore a problem",
+    "example_danish": "Problemet forsvinder ikke, bare fordi vi fejer det ind under gulvtæppet."
+  },
+  {
+    "id": 69,
+    "danish": "Forsvinde som dug for solen",
+    "literal_translation": "Disappear like dew before the sun",
+    "meaning_english": "Disappear very quickly or completely",
+    "example_danish": "Da solen kom frem, forsvandt tågen som dug for solen."
+  },
+  {
+    "id": 70,
+    "danish": "Føre nogen bag lyset",
+    "literal_translation": "Lead someone behind the light",
+    "meaning_english": "Deceive someone",
+    "example_danish": "Han følte, at sælgeren havde ført ham bag lyset."
+  },
+  {
+    "id": 71,
+    "danish": "Få alarmklokkerne til at ringe",
+    "literal_translation": "Make the alarm bells ring",
+    "meaning_english": "Raise warning signs / cause suspicion",
+    "example_danish": "De mærkelige betalinger fik alarmklokkerne til at ringe."
+  },
+  {
+    "id": 72,
+    "danish": "Få blod på tanden",
+    "literal_translation": "Get blood on the tooth",
+    "meaning_english": "Become eager or motivated after initial success",
+    "example_danish": "Efter den første sejr fik hun blod på tanden og ville konkurrere igen."
+  },
+  {
+    "id": 73,
+    "danish": "Få det forkerte ben ud af sengen",
+    "literal_translation": "Get the wrong leg out of bed",
+    "meaning_english": "Wake up in a bad mood",
+    "example_danish": "Har du fået det forkerte ben ud af sengen i dag?"
+  },
+  {
+    "id": 74,
+    "danish": "Få en appelsin i turbanen",
+    "literal_translation": "Get an orange in the turban",
+    "meaning_english": "Have a lucky break / unexpected good fortune",
+    "example_danish": "Han fik en appelsin i turbanen, da han blev tilbudt jobbet uden selv at have søgt."
+  },
+  {
+    "id": 75,
+    "danish": "Få enderne til at hænge sammen",
+    "literal_translation": "Make the ends hang together",
+    "meaning_english": "Make things add up, especially financially",
+    "example_danish": "Det er svært at få enderne til at hænge sammen med én indkomst."
+  },
+  {
+    "id": 76,
+    "danish": "Gå gennem ild og vand for nogen",
+    "literal_translation": "Go through fire and water for someone",
+    "meaning_english": "Do absolutely anything for someone",
+    "example_danish": "Hun ville gå gennem ild og vand for sine børn."
+  },
+  {
+    "id": 77,
+    "danish": "Give den gas",
+    "literal_translation": "Give it gas",
+    "meaning_english": "Go for it / put a lot of energy into something",
+    "example_danish": "Kom nu, vi giver den gas den sidste halve time!"
+  },
+  {
+    "id": 78,
+    "danish": "Give den hele armen",
+    "literal_translation": "Give it the whole arm",
+    "meaning_english": "Give it everything you've got",
+    "example_danish": "Bandet gav den hele armen til koncerten."
+  },
+  {
+    "id": 79,
+    "danish": "Give nogen den kolde skulder",
+    "literal_translation": "Give someone the cold shoulder",
+    "meaning_english": "Deliberately ignore someone",
+    "example_danish": "Hun gav mig den kolde skulder hele aftenen."
+  },
+  {
+    "id": 80,
+    "danish": "Give et slag på tasken",
+    "literal_translation": "Give a hit on the bag",
+    "meaning_english": "Make a rough estimate",
+    "example_danish": "Kan du give et slag på tasken og sige, hvad reparationen vil koste?"
+  },
+  {
+    "id": 81,
+    "danish": "Goddag mand, økseskaft",
+    "literal_translation": "Hello man, axe handle",
+    "meaning_english": "An answer or conversation that makes no sense or misses the point",
+    "example_danish": "Jeg spurgte, hvornår han kom, og han begyndte at tale om vejret. Goddag mand, økseskaft."
+  },
+  {
+    "id": 82,
+    "danish": "Gøre gode miner til slet spil",
+    "literal_translation": "Make good faces for a bad game",
+    "meaning_english": "Pretend everything is fine despite an unpleasant situation",
+    "example_danish": "Hun gjorde gode miner til slet spil, selvom hun var meget skuffet."
+  },
+  {
+    "id": 83,
+    "danish": "Grave sin egen grav",
+    "literal_translation": "Dig one's own grave",
+    "meaning_english": "Cause serious problems for oneself",
+    "example_danish": "Hvis han fortsætter med at lyve, graver han sin egen grav."
+  },
+  {
+    "id": 84,
+    "danish": "Grine som en flækket træsko",
+    "literal_translation": "Laugh like a split wooden shoe",
+    "meaning_english": "Laugh very broadly or loudly",
+    "example_danish": "Han sad og grinede som en flækket træsko gennem hele filmen."
+  },
+  {
+    "id": 85,
+    "danish": "Gå fra snøvsen",
+    "literal_translation": "Go away from the snøvsen",
+    "meaning_english": "Lose one's composure or senses",
+    "example_danish": "Jeg var lige ved at gå fra snøvsen af stress."
+  },
+  {
+    "id": 86,
+    "danish": "Gå i fisk",
+    "literal_translation": "Go into fish",
+    "meaning_english": "Fail / go wrong",
+    "example_danish": "Planen gik helt i fisk, da toget blev aflyst."
+  },
+  {
+    "id": 87,
+    "danish": "Gå i hundene",
+    "literal_translation": "Go to the dogs",
+    "meaning_english": "Deteriorate badly / fall apart",
+    "example_danish": "Firmaet gik i hundene efter nogle meget dårlige investeringer."
+  },
+  {
+    "id": 88,
+    "danish": "Gå ned med flaget",
+    "literal_translation": "Go down with the flag",
+    "meaning_english": "Collapse, become ill or be unable to continue",
+    "example_danish": "Efter flere uger med overarbejde gik han ned med flaget."
+  },
+  {
+    "id": 89,
+    "danish": "Gå op i hat og briller",
+    "literal_translation": "Go up into hat and glasses",
+    "meaning_english": "Turn into complete chaos",
+    "example_danish": "Mødet gik op i hat og briller, fordi ingen havde forberedt sig."
+  },
+  {
+    "id": 90,
+    "danish": "Gå op i røg",
+    "literal_translation": "Go up in smoke",
+    "meaning_english": "Come to nothing / fail completely",
+    "example_danish": "Vores ferieplaner gik op i røg, da flyet blev aflyst."
+  },
+  {
+    "id": 91,
+    "danish": "Gå over stregen",
+    "literal_translation": "Cross the line",
+    "meaning_english": "Go too far / exceed acceptable limits",
+    "example_danish": "Den kommentar gik over stregen."
+  },
+  {
+    "id": 92,
+    "danish": "Have begge ben på jorden",
+    "literal_translation": "Have both feet on the ground",
+    "meaning_english": "Be sensible and realistic",
+    "example_danish": "Selvom hun har haft stor succes, har hun stadig begge ben på jorden."
+  },
+  {
+    "id": 93,
+    "danish": "Have bukserne på",
+    "literal_translation": "Wear the trousers",
+    "meaning_english": "Be the person who is in charge in a relationship or situation",
+    "example_danish": "Der er ingen tvivl om, hvem der har bukserne på derhjemme."
+  },
+  {
+    "id": 94,
+    "danish": "Have fingeren på pulsen",
+    "literal_translation": "Have one's finger on the pulse",
+    "meaning_english": "Be well informed about what is happening",
+    "example_danish": "Hun arbejder med teknologi og har virkelig fingeren på pulsen."
+  },
+  {
+    "id": 95,
+    "danish": "Ikke kunne få armene ned",
+    "literal_translation": "Be unable to get one's arms down",
+    "meaning_english": "Be extremely happy or excited",
+    "example_danish": "Jeg kan slet ikke få armene ned efter den gode nyhed!"
+  },
+  {
+    "id": 96,
+    "danish": "Ikke kunne se skoven for bare træer",
+    "literal_translation": "Not be able to see the forest because of all the trees",
+    "meaning_english": "Be so focused on details that you miss the big picture",
+    "example_danish": "Vi diskuterer små detaljer og kan snart ikke se skoven for bare træer."
+  },
+  {
+    "id": 97,
+    "danish": "Kaste håndklædet i ringen",
+    "literal_translation": "Throw the towel into the ring",
+    "meaning_english": "Give up",
+    "example_danish": "Efter tre mislykkede forsøg nægtede hun stadig at kaste håndklædet i ringen."
+  },
+  {
+    "id": 98,
+    "danish": "Kaste perler for svin",
+    "literal_translation": "Throw pearls before pigs",
+    "meaning_english": "Give something valuable to people who cannot appreciate it",
+    "example_danish": "At servere den vin for dem er næsten at kaste perler for svin."
+  },
+  {
+    "id": 99,
+    "danish": "Komme fra asken i ilden",
+    "literal_translation": "Come from the ashes into the fire",
+    "meaning_english": "Escape one bad situation only to enter a worse one",
+    "example_danish": "Ved at skifte det ene dårlige job ud med det andet kom han fra asken i ilden."
+  },
+  {
+    "id": 100,
+    "danish": "Tage tyren ved hornene",
+    "literal_translation": "Take the bull by the horns",
+    "meaning_english": "Confront a difficult problem directly",
+    "example_danish": "Jeg bliver nødt til at tage tyren ved hornene og tale med min chef."
+  }
+]
