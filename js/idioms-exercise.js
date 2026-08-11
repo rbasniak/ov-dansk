@@ -2,6 +2,7 @@
 
 let idiomState = {
   exercises: [], index: 0, score: 0, answered: false, audio: true, subject: 'talemaader',
+  progressMap: {},
 };
 
 function idiomShuffle(items) {
@@ -75,8 +76,9 @@ async function initIdiomsExercise() {
   const useAdaptive = config.practiceMode &&
     typeof isLoggedIn === 'function' && isLoggedIn();
   let exercises = data;
+  let progressMap = {};
   if (useAdaptive) {
-    const progressMap = await loadProgress('talemaader');
+    progressMap = await loadProgress('talemaader');
     exercises = selectAdaptiveItems(data, progressMap, config.practiceMode, count);
     if (exercises.length === 0) {
       document.getElementById('exercise-view').style.display = 'none';
@@ -89,10 +91,14 @@ async function initIdiomsExercise() {
     }
   } else {
     exercises = idiomShuffle(data).slice(0, count);
+    if (typeof isLoggedIn === 'function' && isLoggedIn()) {
+      progressMap = await loadProgress('talemaader');
+    }
   }
   idiomState = {
     exercises, index: 0, score: 0, answered: false,
     audio: config.audio !== 'off', subject: 'talemaader',
+    progressMap,
   };
   document.getElementById('tts-btn').style.display = idiomState.audio ? '' : 'none';
   idiomRenderQuestion();
@@ -107,27 +113,32 @@ function idiomRenderQuestion() {
     `${idiomState.index + 1} / ${idiomState.exercises.length}`;
   document.getElementById('question-prompt').textContent = 'Can you say what this means?';
   document.getElementById('question-text').textContent = item.danish;
+  if (idiomState.audio) idiomPlayTTS(item.danish);
   const grid = document.getElementById('answer-grid');
-  grid.className = 'answer-grid';
+  grid.className = 'answer-grid four-options';
   grid.innerHTML = '';
-  const hear = document.createElement('button');
-  hear.className = 'answer-btn pronunciation-play-btn';
-  hear.innerHTML = '🔊 &nbsp;Tap to hear, then rate yourself';
-  hear.onclick = () => {
-    idiomPlayTTS(item.danish);
-    grid.innerHTML = '';
-    grid.className = 'answer-grid four-options';
-    [
-      ['🤔 Don’t know', 'dont_know'], ['😓 Hard', 'hard'],
-      ['🙂 Good', 'good'], ['😄 Easy', 'easy'],
-    ].forEach(([label, value]) => {
-      const button = document.createElement('button');
-      button.className = 'answer-btn'; button.textContent = label;
-      button.onclick = () => idiomHandleAnswer(value);
-      grid.appendChild(button);
-    });
-  };
-  grid.appendChild(hear);
+  [
+    ['I don’t know', 'dont_know', 'Again this session'],
+    ['Hard', 'hard', 'Review today'],
+    ['Good', 'good', idiomIntervalLabel(item, 4)],
+    ['Easy', 'easy', idiomIntervalLabel(item, 5)],
+  ].forEach(([label, value, detail]) => {
+    const button = document.createElement('button');
+    button.className = `answer-btn idiom-rating idiom-rating-${value}`;
+    button.innerHTML = `${idiomEscape(label)}<small>${idiomEscape(detail)}</small>`;
+    button.onclick = () => idiomHandleAnswer(value);
+    grid.appendChild(button);
+  });
+}
+
+function idiomIntervalLabel(item, quality) {
+  const progress = idiomState.progressMap[String(item.id)] || {};
+  const repetitions = progress.repetitions || 0;
+  const base = SM2_BASE_INTERVALS[repetitions] ||
+    Math.round((progress.interval || 1) * (progress.easeFactor || 2.5));
+  if (base <= 1) return 'Review in 1 day';
+  const fuzz = Math.min(7, Math.max(1, Math.round(base * 0.25)));
+  return `Review in ${Math.max(2, base - fuzz)}–${base + fuzz} days`;
 }
 
 function idiomHandleAnswer(resultType) {
@@ -135,6 +146,9 @@ function idiomHandleAnswer(resultType) {
   idiomState.answered = true;
   const item = idiomState.exercises[idiomState.index];
   if (resultType === 'good' || resultType === 'easy') idiomState.score++;
+  if (resultType === 'dont_know' && !item._retried) {
+    idiomState.exercises.push({ ...item, _retried: true });
+  }
   if (typeof isLoggedIn === 'function' && isLoggedIn()) {
     recordAnswer(idiomState.subject, String(item.id), resultType).catch(console.error);
   }

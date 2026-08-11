@@ -81,7 +81,7 @@ function _applyFuzz(interval) {
   return Math.max(2, interval + delta);
 }
 
-function _sm2Update(existing, quality) {
+function _sm2Update(existing, quality, reviewToday = false) {
   let { interval = 0, easeFactor = 2.5, repetitions = 0 } = existing;
 
   if (quality >= 3) {
@@ -98,7 +98,12 @@ function _sm2Update(existing, quality) {
   easeFactor += 0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02);
   easeFactor   = Math.max(1.3, easeFactor);
 
-  return { interval, easeFactor, repetitions, nextReview: Date.now() + interval * 86400000 };
+  return {
+    interval,
+    easeFactor,
+    repetitions,
+    nextReview: reviewToday ? Date.now() : Date.now() + interval * 86400000,
+  };
 }
 
 // ─── Firestore helpers ────────────────────────────────────────────────────────
@@ -135,7 +140,7 @@ async function recordAnswer(subject, itemId, resultType) {
     const ref  = _itemRef(subject, itemId);
     const snap = await ref.get();
     const old  = snap.exists ? snap.data() : {};
-    const sm2  = _sm2Update(old, quality);
+    const sm2  = _sm2Update(old, quality, resultType === 'hard');
     await ref.set({
       subject, itemId, ...sm2,
       lastSeen:      Date.now(),
@@ -143,6 +148,7 @@ async function recordAnswer(subject, itemId, resultType) {
       wrongCount:    (old.wrongCount    || 0) + (resultType === 'wrong'     ? 1 : 0),
       dontKnowCount: (old.dontKnowCount || 0) + (resultType === 'dont_know' ? 1 : 0),
     }, { merge: true });
+    return sm2;
   } catch (e) {
     console.error('recordAnswer:', e);
   }
