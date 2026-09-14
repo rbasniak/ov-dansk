@@ -64,6 +64,15 @@ recall as **Don't know**, **Hard**, **Good**, or **Easy**. The rating controls t
 next review date through SM-2. The answer card includes the literal translation,
 English meaning, example sentence, and audio buttons for both Danish texts.
 
+### ⭐ Saved Words
+
+Words and phrases selected from the companion static reading sites can be
+saved with a manually entered meaning. They are stored per user in
+`users/{uid}/customWords` and appear here as a self-assessment exercise:
+the Danish term is shown, the learner recalls the meaning, then chooses
+Don't know, Hard, Good, or Easy. These reviews use the same SM-2 scheduling as
+the other subjects.
+
 ---
 
 ## Adaptive Learning & Progress Tracking
@@ -91,6 +100,12 @@ When signed in with Google, every answer you give is saved to Firestore and used
 - `hund` — Pronunciation (definite)
 - `hund` — Pronunciation (plural)
 - `hund` — Pronunciation (definite plural)
+
+**Saved words** (one document per saved term):
+- Firestore collection: `users/{uid}/customWords`
+- Fields: `term`, `meaning`, `sourceUrl`, `sourceTitle`, `createdAt`, `updatedAt`
+- Review progress is stored separately under `users/{uid}/progress` with
+  `subject: "custom"` and the saved-word document ID as `itemId`.
 
 Knowing a word in one exercise type has **no effect** on any other type.
 

@@ -215,12 +215,14 @@
       const container = document.getElementById('progress-content');
       container.innerHTML = '<p style="color:var(--text-muted);padding:20px 0">Loading…</p>';
 
-      const [verbsMap, nounsMap, numbersMap, talemaaderMap, talemaaderData] = await Promise.all([
+      const [verbsMap, nounsMap, numbersMap, talemaaderMap, talemaaderData, customMap, customData] = await Promise.all([
         loadProgress('verbs'),
         loadProgress('nouns'),
         loadProgress('numbers'),
         loadProgress('talemaader'),
         fetch('js/talemaader-data.json').then(response => response.json()),
+        loadProgress('custom'),
+        loadCustomWords(),
       ]);
 
       const nVerbs = VERBS.length;
@@ -229,6 +231,7 @@
       const nNounPron = _countPronunciationNouns();
       const nBuckets  = NUMBER_BUCKETS.length;
       const nTalemaader = talemaaderData.length;
+      const nCustom = customData.length;
 
       _progressRowData = [];
       const verbLookup    = w => VERBS.find(v => v.inf === w);
@@ -274,12 +277,18 @@
         _statBar('💬 Expressions', getProgressStats(talemaaderMap, nTalemaader),
           { title: '💬 Idioms', label: 'Expressions', map: talemaaderMap, substr: '', lookup: talemaaderLookup }),
       ];
+      const customLookup = id => customData.find(item => String(item.id) === String(id));
+      const customRows = [
+        _statBar('⭐ Saved words', getProgressStats(customMap, nCustom),
+          { title: '⭐ Saved Words', label: 'Saved words', map: customMap, substr: '', lookup: customLookup }),
+      ];
 
       container.innerHTML =
         _subjectCard('📝 Verbs', 'verbs-config.html', verbRows) +
         _subjectCard('📖 Nouns', 'nouns-config.html', nounRows) +
         _subjectCard('🔢 Numbers', 'numbers-config.html', numberRows) +
-        _subjectCard('💬 Idioms', 'talemaader-config.html', talemaaderRows);
+        _subjectCard('💬 Idioms', 'talemaader-config.html', talemaaderRows) +
+        _subjectCard('⭐ Saved Words', 'custom-config.html', customRows);
     }
   </script>
 </body>

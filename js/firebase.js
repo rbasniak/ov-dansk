@@ -128,6 +128,19 @@ async function loadProgress(subject) {
     console.error('loadProgress:', e);
     return {};
   }
+
+  // Saved words and phrases created from the static reading pages.
+  async function loadCustomWords() {
+    if (!_currentUser) return [];
+    try {
+      const snap = await _db.collection('users').doc(_currentUser.uid)
+                            .collection('customWords').get();
+      return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (e) {
+      console.error('loadCustomWords:', e);
+      return [];
+    }
+  }
 }
 
 // resultType: 'correct' | 'wrong' | 'dont_know' | 'hard' | 'good' | 'easy' | 'timeout'
