@@ -84,6 +84,7 @@
       twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
       const prefs = loadConfigPrefs(CONFIG_PREFS_KEYS.custom);
       applyCommonExercisePrefs(prefs, ['count', 'audio']);
+      renderAuthButton();
       initAuth(() => { renderAuthButton(); setPracticeModeEnabled(true); },
                () => { renderAuthButton(); setPracticeModeEnabled(false); });
     });
