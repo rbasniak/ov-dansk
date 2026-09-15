@@ -137,7 +137,7 @@
   <script src="js/exercise.js"></script>
   <script>
     window.addEventListener('load', () => {
-      twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
+      window.twemoji?.parse?.(document.body, { folder: 'svg', ext: '.svg' });
 
       // Wait for auth state to be known before starting so adaptive mode works.
       // The 'started' flag prevents double-init if auth state fires more than once.

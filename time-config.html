@@ -136,7 +136,7 @@
     }
 
     loadTimePrefs();
-    twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
+    window.twemoji?.parse?.(document.body, { folder: 'svg', ext: '.svg' });
   </script>
 </body>
 </html>

@@ -77,7 +77,7 @@
       window.location.href = 'talemaader-exercise.html';
     }
     window.addEventListener('load', () => {
-      twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
+      window.twemoji?.parse?.(document.body, { folder: 'svg', ext: '.svg' });
       const prefs = loadConfigPrefs(CONFIG_PREFS_KEYS.talemaader);
       applyCommonExercisePrefs(prefs, ['count', 'audio']);
       initAuth(() => { renderAuthButton(); setPracticeModeEnabled(true); },

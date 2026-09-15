@@ -108,7 +108,7 @@
     </a>
 
   </div>
-  <script>twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
+  <script>window.twemoji?.parse?.(document.body, { folder: 'svg', ext: '.svg' });
     renderAuthButton();
     initAuth(
       () => renderAuthButton(),
