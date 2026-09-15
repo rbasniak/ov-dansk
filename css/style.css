@@ -944,8 +944,9 @@ body {
 }
 
 .idiom-rating-hard {
-  background: rgba(239, 68, 68, 0.14);
-  border-color: #ef4444;
+  background: rgba(249, 115, 22, 0.2);
+  border-color: #f97316;
+  color: #fed7aa;
 }
 
 .idiom-rating-good {
