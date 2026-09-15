@@ -151,6 +151,6 @@ function customShowSummary() {
 }
 
 window.addEventListener('load', () => {
-  twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
+  window.twemoji?.parse?.(document.body, { folder: 'svg', ext: '.svg' });
   initAuth(() => initCustomExercise(), () => { window.location.href = 'custom-config.html'; });
 });

@@ -190,7 +190,7 @@ function idiomShowSummary() {
 }
 
 window.addEventListener('load', () => {
-  twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
+  window.twemoji?.parse?.(document.body, { folder: 'svg', ext: '.svg' });
   initAuth(() => { renderAuthButton(); initIdiomsExercise(); },
            () => { renderAuthButton(); initIdiomsExercise(); });
 });
