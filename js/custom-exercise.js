@@ -2,7 +2,7 @@
 
 let customState = {
   exercises: [], index: 0, score: 0, answered: false, audio: true,
-  subject: 'custom', progressMap: {}, audioPlayer: null,
+  subject: 'custom', progressMap: {}, audioPlayer: null, audioGeneration: 0,
 };
 
 function customEscape(value) {
@@ -12,22 +12,33 @@ function customEscape(value) {
 }
 
 function customPlayTTS(text) {
-  const speak = text || document.getElementById('tts-label')?.textContent;
+  const speak = text || customState.exercises[customState.index]?.term;
   if (!speak) return;
-  customState.audioPlayer?.pause();
-  window.speechSynthesis?.cancel();
+  customStopTTS();
+  const generation = customState.audioGeneration;
   const audio = new Audio();
   audio.referrerPolicy = 'no-referrer';
   audio.src = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=da&q=${encodeURIComponent(speak)}`;
   customState.audioPlayer = audio;
   audio.onerror = () => {
+    if (generation !== customState.audioGeneration) return;
     if (!window.speechSynthesis) return;
     const utterance = new SpeechSynthesisUtterance(speak);
     utterance.lang = 'da-DK';
     utterance.rate = 0.85;
     window.speechSynthesis.speak(utterance);
   };
-  audio.play().catch(() => audio.onerror());
+  audio.play().catch(error => {
+    if (generation !== customState.audioGeneration || error?.name === 'AbortError') return;
+    audio.onerror();
+  });
+}
+
+function customStopTTS() {
+  customState.audioGeneration++;
+  customState.audioPlayer?.pause();
+  customState.audioPlayer = null;
+  window.speechSynthesis?.cancel();
 }
 
 function customToggleCard() {
@@ -64,7 +75,8 @@ async function initCustomExercise() {
 
   customState = {
     exercises, index: 0, score: 0, answered: false,
-    audio: config.audio !== 'off', subject: 'custom', progressMap, audioPlayer: null,
+    audio: config.audio !== 'off', subject: 'custom', progressMap,
+    audioPlayer: null, audioGeneration: 0,
   };
   document.getElementById('tts-btn').style.display = customState.audio ? '' : 'none';
   customRenderQuestion();
@@ -138,8 +150,7 @@ function customShowFeedback(item, resultType) {
 function customNextQuestion() {
   const overlay = document.getElementById('feedback-overlay');
   if (overlay.classList.contains('hidden')) return;
-  customState.audioPlayer?.pause();
-  window.speechSynthesis?.cancel();
+  customStopTTS();
   overlay.className = 'feedback-overlay hidden';
   customState.index++;
   if (customState.index >= customState.exercises.length) customShowSummary();
