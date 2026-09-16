@@ -71,7 +71,8 @@ async function signOut() {
 
 // Keep the early intervals explicit so that fuzz from one review does not
 // compound into the next one. After these levels, SM-2 keeps multiplying the
-// last interval by the ease factor.
+// last interval by the ease factor. An "easy" rating uses that multiplier
+// immediately once the item has already been reviewed at least once.
 const SM2_BASE_INTERVALS = [1, 6, 15, 38, 95, 238, 595, 1488];
 
 function _applyFuzz(interval) {
@@ -86,9 +87,12 @@ function _sm2Update(existing, quality, reviewToday = false) {
 
   if (quality >= 3) {
     const baseInterval = SM2_BASE_INTERVALS[repetitions];
-    interval = baseInterval
-      ? _applyFuzz(baseInterval)
-      : _applyFuzz(Math.round(interval * easeFactor));
+    const intervalTarget = baseInterval
+      ? (quality === 5 && repetitions > 0
+        ? Math.round(baseInterval * easeFactor)
+        : baseInterval)
+      : Math.round(interval * easeFactor);
+    interval = _applyFuzz(intervalTarget);
     repetitions++;
   } else {
     repetitions = 0;
@@ -113,7 +117,11 @@ function getReviewIntervalLabel(existing = {}, quality) {
   if (quality < 3) return 'Review tomorrow';
 
   const baseInterval = SM2_BASE_INTERVALS[repetitions];
-  const intervalDays = baseInterval || Math.round(interval * easeFactor);
+  const intervalDays = baseInterval
+    ? (quality === 5 && repetitions > 0
+      ? Math.round(baseInterval * easeFactor)
+      : baseInterval)
+    : Math.round(interval * easeFactor);
   if (intervalDays <= 1) return 'Review in 1 day';
 
   const fuzz = Math.min(7, Math.max(1, Math.round(intervalDays * 0.25)));
