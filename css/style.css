@@ -709,64 +709,241 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 14px;
-  padding: 32px 24px 80px;
+  justify-content: flex-start;
+  gap: 16px;
+  padding: max(clamp(24px, 7vh, 64px), env(safe-area-inset-top)) 20px
+           calc(88px + env(safe-area-inset-bottom));
   z-index: 100;
   cursor: pointer;
   user-select: none;
-}
-.feedback-overlay.success { background: var(--success-bg); }
-.feedback-overlay.failure { background: var(--error-bg); }
-.feedback-overlay.hidden  { display: none; }
-.feedback-overlay.noun-feedback,
-.feedback-overlay.verb-feedback {
-  justify-content: flex-start;
   overflow-y: auto;
+}
+.feedback-overlay.success {
+  background: linear-gradient(180deg, rgba(34,197,94,0.18), var(--bg) 42%);
+}
+.feedback-overlay.failure {
+  background: linear-gradient(180deg, rgba(239,68,68,0.18), var(--bg) 42%);
+}
+.feedback-overlay.rating-hard {
+  background: linear-gradient(180deg, rgba(249,115,22,0.18), var(--bg) 42%);
+}
+.feedback-overlay.rating-good {
+  background: linear-gradient(180deg, rgba(234,179,8,0.16), var(--bg) 42%);
+}
+.feedback-overlay.hidden  { display: none; }
+
+.feedback-status {
+  width: min(100%, 420px);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 2px;
+  cursor: pointer;
 }
 
 .feedback-icon {
-  font-size: 90px;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  font-size: 22px;
   line-height: 1;
-  animation: icon-pop 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+  animation: feedback-enter 0.24s ease-out both;
 }
-@keyframes icon-pop {
-  from { transform: scale(0.2) rotate(-15deg); opacity: 0; }
-  to   { transform: scale(1) rotate(0deg); opacity: 1; }
+.feedback-overlay.success .feedback-icon {
+  background: rgba(34,197,94,0.18);
+  color: #86efac;
+  border: 1px solid rgba(34,197,94,0.45);
+}
+.feedback-overlay.failure .feedback-icon {
+  background: rgba(239,68,68,0.18);
+  color: #fca5a5;
+  border: 1px solid rgba(239,68,68,0.45);
+}
+.feedback-overlay.rating-hard .feedback-icon {
+  background: rgba(249,115,22,0.18);
+  color: #fdba74;
+  border-color: rgba(249,115,22,0.5);
+}
+.feedback-overlay.rating-good .feedback-icon {
+  background: rgba(234,179,8,0.18);
+  color: #fde047;
+  border-color: rgba(234,179,8,0.5);
+}
+
+.feedback-status-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+@keyframes feedback-enter {
+  from { transform: translateY(8px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
 }
 
 .feedback-title {
-  font-size: 38px;
-  font-weight: 900;
-  letter-spacing: -0.5px;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
 }
 .feedback-overlay.success .feedback-title { color: var(--success); }
 .feedback-overlay.failure .feedback-title { color: var(--error); }
+.feedback-overlay.rating-hard .feedback-title { color: #fb923c; }
+.feedback-overlay.rating-good .feedback-title { color: #facc15; }
 
 .feedback-subtitle {
-  font-size: 16px;
+  font-size: 13px;
   color: var(--text-muted);
+  text-align: left;
+  line-height: 1.35;
+}
+
+.feedback-answer-card {
+  width: min(100%, 420px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 24px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
   text-align: center;
-  line-height: 1.5;
+  cursor: pointer;
+  animation: feedback-enter 0.28s 0.04s ease-out both;
+}
+.feedback-overlay.success .feedback-answer-card {
+  border-color: rgba(34,197,94,0.55);
+  box-shadow: 0 12px 34px rgba(34,197,94,0.12);
+}
+.feedback-overlay.failure .feedback-answer-card {
+  border-color: rgba(239,68,68,0.55);
+  box-shadow: 0 12px 34px rgba(239,68,68,0.12);
+}
+.feedback-overlay.rating-hard .feedback-answer-card {
+  border-color: rgba(249,115,22,0.55);
+  box-shadow: 0 12px 34px rgba(249,115,22,0.12);
+}
+.feedback-overlay.rating-good .feedback-answer-card {
+  border-color: rgba(234,179,8,0.5);
+  box-shadow: 0 12px 34px rgba(234,179,8,0.1);
+}
+
+.feedback-answer-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.feedback-answer-term {
+  font-size: clamp(26px, 7vw, 38px);
+  font-weight: 900;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+  color: var(--text);
+  overflow-wrap: anywhere;
 }
 
 .feedback-correct {
-  font-size: 24px;
-  font-weight: 800;
+  font-size: clamp(26px, 7vw, 38px);
+  font-weight: 900;
   color: var(--text);
   text-align: center;
-  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.feedback-answer-card .feedback-number {
+  font-size: clamp(52px, 15vw, 72px);
+}
+
+.feedback-answer-card .feedback-danish {
+  font-size: clamp(22px, 6vw, 30px);
+  color: var(--text);
+}
+
+.feedback-answer-card .feedback-correct-display {
+  margin: 0;
+}
+
+.feedback-details {
+  width: min(100%, 420px);
+  cursor: pointer;
+  animation: feedback-enter 0.28s 0.08s ease-out both;
+}
+
+.feedback-details #noun-info-container,
+.feedback-details #conj-table-container,
+.feedback-details .idiom-info-container {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  background: rgba(30,41,59,0.72);
+}
+
+.feedback-audio-row {
+  width: min(100%, 420px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.feedback-overlay .feedback-audio-row .tts-btn {
+  width: 52px;
+  height: 52px;
+  margin: 0;
+  font-size: 24px;
+}
+
+.feedback-overlay .feedback-audio-row .tts-verb-label {
+  margin: 0;
+  color: var(--text-muted);
+  text-align: left;
+  overflow-wrap: anywhere;
 }
 
 .feedback-tap {
   position: fixed;
-  bottom: 36px;
+  bottom: calc(24px + env(safe-area-inset-bottom));
   left: 50%;
   transform: translateX(-50%);
-  font-size: 14px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(15,23,42,0.88);
+  font-size: 12px;
+  font-weight: 600;
   color: var(--text-dim);
   letter-spacing: 0.3px;
   white-space: nowrap;
+  pointer-events: none;
+}
+
+@media (max-width: 420px) {
+  .feedback-overlay {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+  .feedback-answer-card {
+    padding: 20px 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feedback-icon,
+  .feedback-answer-card,
+  .feedback-details {
+    animation: none;
+  }
 }
 
 /* ── Summary ──────────────────────────────────────────────── */

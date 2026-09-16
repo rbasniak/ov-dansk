@@ -12,7 +12,7 @@ function customEscape(value) {
 }
 
 function customPlayTTS(text) {
-  const speak = text || document.getElementById('tts-label')?.textContent;
+  const speak = text || customState.exercises[customState.index]?.term;
   if (!speak) return;
   customState.audioPlayer?.pause();
   window.speechSynthesis?.cancel();
@@ -80,7 +80,6 @@ function customRenderQuestion() {
   document.getElementById('question-meaning').textContent = item.meaning;
   document.getElementById('custom-card-inner').classList.remove('is-flipped');
   document.getElementById('question-tts-btn').style.display = customState.audio ? 'inline-flex' : 'none';
-  document.getElementById('tts-label').textContent = item.term;
   if (customState.audio) customPlayTTS(item.term);
 
   const grid = document.getElementById('answer-grid');
@@ -124,17 +123,24 @@ function customHandleAnswer(resultType) {
 
 function customShowFeedback(item, resultType) {
   const overlay = document.getElementById('feedback-overlay');
-  overlay.className = `feedback-overlay idiom-feedback ${resultType === 'dont_know' ? 'failure' : 'success'}`;
-  document.getElementById('feedback-icon').textContent = resultType === 'dont_know' ? '🤔' : '✓';
-  document.getElementById('feedback-title').textContent =
-    resultType === 'dont_know' ? 'Let’s learn!' : 'Saved!';
-  document.getElementById('feedback-subtitle').textContent = 'Your meaning:';
-  document.getElementById('custom-info-container').innerHTML =
-    `<div class="conj-row"><span class="conj-label">Meaning</span><span class="conj-value">${customEscape(item.meaning)}</span></div>`;
-  document.getElementById('custom-info-container').style.display = 'block';
-  document.getElementById('tts-label').textContent = item.term;
+  overlay.className =
+    `feedback-overlay idiom-feedback rating-${resultType} ${resultType === 'dont_know' ? 'failure' : 'success'}`;
+  document.getElementById('feedback-icon').textContent = {
+    dont_know: '?', hard: '!', good: '✓', easy: '✓',
+  }[resultType] || '✓';
+  const statusLabels = {
+    dont_know: 'Don’t know',
+    hard: 'Hard',
+    good: 'Good',
+    easy: 'Easy',
+  };
+  document.getElementById('feedback-title').textContent = statusLabels[resultType] || resultType;
+  document.getElementById('feedback-subtitle').textContent = 'Your self-assessment';
+  document.getElementById('feedback-answer-term').textContent = item.term;
+  document.getElementById('feedback-answer-meaning').textContent = item.meaning;
   document.getElementById('tts-btn').style.display = customState.audio ? '' : 'none';
   if (customState.audio) customPlayTTS(item.term);
+  overlay.focus({ preventScroll: true });
 }
 
 function customNextQuestion() {

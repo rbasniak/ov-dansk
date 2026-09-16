@@ -27,7 +27,6 @@ function idiomTtsButton(text) {
 function idiomInfoCard(item) {
   return `
     <div class="conj-row"><span class="conj-label">Literal</span><span class="conj-value">${idiomEscape(item.literal_translation)}</span><span class="tts-mini-gap"></span></div>
-    <div class="conj-row"><span class="conj-label">Meaning</span><span class="conj-value">${idiomEscape(item.meaning_english)}</span><span class="tts-mini-gap"></span></div>
     <div class="noun-example">
       <span class="noun-example-label">Example</span>
       <div class="noun-example-content">
@@ -39,7 +38,7 @@ function idiomInfoCard(item) {
 
 let idiomAssetPlayer = null;
 function idiomPlayTTS(text) {
-  const speak = text || document.getElementById('idiom-tts-label')?.textContent;
+  const speak = text || idiomState.exercises[idiomState.index]?.danish;
   if (!speak) return;
   idiomStopTTS();
   const btn = document.getElementById('tts-btn');
@@ -120,7 +119,6 @@ function idiomRenderQuestion() {
   document.getElementById('question-meaning').textContent = item.meaning_english;
   document.getElementById('idiom-card-inner').classList.remove('is-flipped');
   document.getElementById('idiom-question-tts-btn').style.display = idiomState.audio ? 'inline-flex' : 'none';
-  document.getElementById('idiom-tts-label').textContent = item.danish;
   if (idiomState.audio) idiomPlayTTS(item.danish);
   const grid = document.getElementById('answer-grid');
   grid.className = 'answer-grid four-options';
@@ -165,17 +163,25 @@ function idiomHandleAnswer(resultType) {
 
 function idiomShowFeedback(item, resultType) {
   document.getElementById('feedback-overlay').className =
-    `feedback-overlay idiom-feedback ${resultType === 'dont_know' ? 'failure' : 'success'}`;
-  document.getElementById('feedback-icon').textContent =
-    resultType === 'dont_know' ? '🤔' : '✓';
-  document.getElementById('feedback-title').textContent =
-    resultType === 'dont_know' ? 'Let’s learn!' : 'Saved!';
-  document.getElementById('feedback-subtitle').textContent = 'Expression details:';
+    `feedback-overlay idiom-feedback rating-${resultType} ${resultType === 'dont_know' ? 'failure' : 'success'}`;
+  document.getElementById('feedback-icon').textContent = {
+    dont_know: '?', hard: '!', good: '✓', easy: '✓',
+  }[resultType] || '✓';
+  const statusLabels = {
+    dont_know: 'Don’t know',
+    hard: 'Hard',
+    good: 'Good',
+    easy: 'Easy',
+  };
+  document.getElementById('feedback-title').textContent = statusLabels[resultType] || resultType;
+  document.getElementById('feedback-subtitle').textContent = 'Your self-assessment';
+  document.getElementById('feedback-answer-term').textContent = item.danish;
+  document.getElementById('feedback-answer-meaning').textContent = item.meaning_english;
   document.getElementById('idiom-info-container').innerHTML = idiomInfoCard(item);
   document.getElementById('idiom-info-container').style.display = 'block';
-  document.getElementById('idiom-tts-label').textContent = item.danish;
   document.getElementById('tts-btn').style.display = idiomState.audio ? '' : 'none';
   if (idiomState.audio) idiomPlayTTS(item.danish);
+  document.getElementById('feedback-overlay').focus({ preventScroll: true });
 }
 
 function idiomNextQuestion() {

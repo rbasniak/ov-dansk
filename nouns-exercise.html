@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0f172a" />
   <title>Nouns Exercise | Danish Practice</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/style.css?v=feedback-redesign-1" />
   <script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
   <!-- Firebase v8 compat SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -65,20 +65,34 @@
   </div><!-- /exercise-view -->
 
   <!-- ── Feedback Overlay ──────────────────────────────────────── -->
-  <div class="feedback-overlay hidden" id="feedback-overlay" onclick="nextQuestion()">
-    <div class="feedback-icon"     id="feedback-icon"></div>
-    <div class="feedback-title"    id="feedback-title"></div>
-    <div class="feedback-subtitle" id="feedback-subtitle"></div>
-    <div class="feedback-correct"  id="feedback-correct"></div>
+  <div class="feedback-overlay hidden" id="feedback-overlay" role="dialog" aria-modal="true"
+       aria-labelledby="feedback-title" tabindex="-1" onclick="nextQuestion()"
+       onkeydown="if(event.target===this&&(event.key==='Enter'||event.key===' ')){event.preventDefault();nextQuestion();}">
+    <div class="feedback-status">
+      <div class="feedback-icon" id="feedback-icon"></div>
+      <div class="feedback-status-copy">
+        <div class="feedback-title"    id="feedback-title"></div>
+        <div class="feedback-subtitle" id="feedback-subtitle"></div>
+      </div>
+    </div>
+
+    <div class="feedback-answer-card">
+      <div class="feedback-answer-label" id="feedback-answer-label"></div>
+      <div class="feedback-correct" id="feedback-correct"></div>
+    </div>
 
     <!-- Noun info card (all exercises) -->
-    <div id="noun-info-container" style="display:none"></div>
+    <div class="feedback-details">
+      <div id="noun-info-container" style="display:none"></div>
+    </div>
 
     <!-- TTS play button -->
-    <button id="tts-btn" class="tts-btn" onclick="event.stopPropagation(); playTTS()" aria-label="Hear pronunciation">
-      🔊
-    </button>
-    <span id="tts-noun-label" class="tts-verb-label"></span>
+    <div class="feedback-audio-row">
+      <button id="tts-btn" class="tts-btn" onclick="event.stopPropagation(); playTTS()" aria-label="Hear pronunciation">
+        🔊
+      </button>
+      <span id="tts-noun-label" class="tts-verb-label"></span>
+    </div>
 
     <div class="feedback-tap">Tap anywhere else to continue</div>
   </div>
@@ -134,7 +148,7 @@
   <script src="js/audio-assets.js"></script>
   <script src="js/listen-sequence.js"></script>
   <script src="js/review-match.js"></script>
-  <script src="js/nouns-exercise.js"></script>
+  <script src="js/nouns-exercise.js?v=feedback-redesign-1"></script>
   <script>
     window.addEventListener('load', () => {
       window.twemoji?.parse?.(document.body, { folder: 'svg', ext: '.svg' });

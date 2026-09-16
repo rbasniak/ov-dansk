@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0f172a" />
   <title>Numbers Exercise | Danish Practice</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/style.css?v=feedback-redesign-1" />
   <script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
   <!-- Firebase v8 compat SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -56,19 +56,28 @@
   </div><!-- /exercise-view -->
 
   <!-- ── Feedback Overlay ────────────────────────────────────── -->
-  <div class="feedback-overlay hidden" id="feedback-overlay" onclick="nextQuestion()">
-    <div class="feedback-icon"     id="feedback-icon"></div>
-    <div class="feedback-title"    id="feedback-title"></div>
-    <div class="feedback-subtitle" id="feedback-subtitle"></div>
+  <div class="feedback-overlay hidden" id="feedback-overlay" role="dialog" aria-modal="true"
+       aria-labelledby="feedback-title" tabindex="-1" onclick="nextQuestion()"
+       onkeydown="if(event.target===this&&(event.key==='Enter'||event.key===' ')){event.preventDefault();nextQuestion();}">
+    <div class="feedback-status">
+      <div class="feedback-icon" id="feedback-icon"></div>
+      <div class="feedback-status-copy">
+        <div class="feedback-title" id="feedback-title"></div>
+        <div class="feedback-subtitle" id="feedback-subtitle"></div>
+      </div>
+    </div>
 
-    <!-- Always show numeral + Danish text -->
-    <div class="feedback-number"   id="feedback-number"></div>
-    <div class="feedback-danish"   id="feedback-danish"></div>
+    <div class="feedback-answer-card">
+      <div class="feedback-answer-label" id="feedback-answer-label"></div>
+      <div class="feedback-number" id="feedback-number"></div>
+      <div class="feedback-danish" id="feedback-danish"></div>
+    </div>
 
-    <!-- TTS button -->
-    <button id="tts-btn" class="tts-btn" onclick="event.stopPropagation(); playFeedbackTTS()" aria-label="Hear pronunciation">
-      🔊
-    </button>
+    <div class="feedback-audio-row">
+      <button id="tts-btn" class="tts-btn" onclick="event.stopPropagation(); playFeedbackTTS()" aria-label="Hear pronunciation">
+        🔊
+      </button>
+    </div>
 
     <div class="feedback-tap">Tap anywhere else to continue</div>
   </div>
@@ -103,7 +112,7 @@
   <!-- Data + Logic -->
   <script src="js/numbers-data.js"></script>
   <script src="js/audio-assets.js"></script>
-  <script src="js/numbers-exercise.js"></script>
+  <script src="js/numbers-exercise.js?v=feedback-redesign-1"></script>
   <script>
     window.addEventListener('load', () => {
       initNumbersExercise();

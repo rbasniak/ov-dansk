@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0f172a" />
   <meta name="referrer" content="no-referrer" />
   <title>Saved Words Exercise | Danish Practice</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/style.css?v=feedback-redesign-1" />
   <script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
@@ -38,13 +38,25 @@
     <div class="answer-grid" id="answer-grid"></div>
   </div>
 
-  <div class="feedback-overlay hidden" id="feedback-overlay" onclick="customNextQuestion()">
-    <div class="feedback-icon" id="feedback-icon"></div>
-    <div class="feedback-title" id="feedback-title"></div>
-    <div class="feedback-subtitle" id="feedback-subtitle"></div>
-    <div id="custom-info-container" class="idiom-info-container"></div>
-    <button id="tts-btn" class="tts-btn" onclick="event.stopPropagation();customPlayTTS()" aria-label="Hear pronunciation">🔊</button>
-    <span id="tts-label" class="tts-verb-label"></span>
+  <div class="feedback-overlay hidden" id="feedback-overlay" role="dialog" aria-modal="true"
+       aria-labelledby="feedback-title" tabindex="-1" onclick="customNextQuestion()"
+       onkeydown="if(event.target===this&&(event.key==='Enter'||event.key===' ')){event.preventDefault();customNextQuestion();}">
+    <div class="feedback-status">
+      <div class="feedback-icon" id="feedback-icon"></div>
+      <div class="feedback-status-copy">
+        <div class="feedback-title" id="feedback-title"></div>
+        <div class="feedback-subtitle" id="feedback-subtitle"></div>
+      </div>
+    </div>
+    <div class="feedback-answer-card">
+      <div class="feedback-answer-label">Danish term</div>
+      <div class="feedback-answer-term" id="feedback-answer-term"></div>
+      <div class="feedback-audio-row">
+        <button id="tts-btn" class="tts-btn" onclick="event.stopPropagation();customPlayTTS()" aria-label="Hear pronunciation">🔊</button>
+      </div>
+      <div class="feedback-answer-label">Meaning</div>
+      <div class="feedback-correct" id="feedback-answer-meaning"></div>
+    </div>
     <div class="feedback-tap">Tap anywhere else to continue</div>
   </div>
 
@@ -70,6 +82,6 @@
       <div class="summary-actions"><button class="start-btn" onclick="location.reload()">Play Again →</button><a href="custom-config.html" class="btn-secondary">Change Settings</a><a href="index.html" class="btn-secondary">Home</a></div>
     </div>
   </div>
-  <script src="js/custom-exercise.js?v=self-assessment-card-4"></script>
+  <script src="js/custom-exercise.js?v=feedback-redesign-1"></script>
 </body>
 </html>

@@ -560,23 +560,27 @@ function showFeedback(isCorrect, q, isDontKnow = false) {
 
   document.getElementById('feedback-icon').textContent  = isCorrect ? '✓' : (isDontKnow ? '🤔' : '✗');
 
-  // Pronunciation: icon/title reflect self-assessment, not a "right/wrong" judgment
-  if (q.type === 'pronunciation') {
-    document.getElementById('feedback-title').textContent = isCorrect ? 'Great work!' : 'Keep practicing!';
-  } else {
-    document.getElementById('feedback-title').textContent = isCorrect ? 'Correct!' : (isDontKnow ? "Let's learn!" : 'Incorrect');
-  }
+  document.getElementById('feedback-title').textContent =
+    q.type === 'pronunciation'
+      ? (isCorrect ? 'Got it right' : 'Needs practice')
+      : (isCorrect ? 'Correct' : 'Review this');
 
   const correctEl     = document.getElementById('feedback-correct');
+  const answerLabelEl = document.getElementById('feedback-answer-label');
   const subtitleEl    = document.getElementById('feedback-subtitle');
   const conjContainer = document.getElementById('conj-table-container');
   const ttsBtn        = document.getElementById('tts-btn');
   const ttsLabel      = document.getElementById('tts-verb-label');
 
-  subtitleEl.textContent = q.type === 'pronunciation' && !isCorrect
-    ? 'Listen again and study the verb:'
-    : 'Verb details:';
-  correctEl.textContent = '';
+  const correctOption = q.options && q.options.find(opt => opt.value === q.correctValue);
+  const primaryValue = q.type === 'pronunciation'
+    ? q.danishVerb
+    : (correctOption ? correctOption.label : q.correctValue);
+  answerLabelEl.textContent = q.type === 'pronunciation' ? 'Practiced form' : 'Correct answer';
+  correctEl.textContent = primaryValue || '';
+  subtitleEl.textContent = q.type === 'pronunciation'
+    ? 'Self-assessment'
+    : 'Conjugation details';
 
   if (conjContainer && q.verbData) {
     conjContainer.style.display = 'block';
@@ -590,6 +594,7 @@ function showFeedback(isCorrect, q, isDontKnow = false) {
   }
 
   if (state.audio) playTTS();
+  overlay.focus({ preventScroll: true });
 }
 
 function _vEscapeHtml(value) {
