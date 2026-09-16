@@ -423,6 +423,46 @@ body {
 .custom-question-card {
   cursor: pointer;
   user-select: none;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  perspective: 1000px;
+}
+
+.custom-card-inner {
+  display: grid;
+  min-height: 220px;
+  transform-style: preserve-3d;
+  transition: transform 0.45s ease;
+}
+
+.custom-card-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.custom-card-face {
+  grid-area: 1 / 1;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 22px 24px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow: var(--shadow);
+}
+
+.custom-card-front {
+  background: var(--surface);
+}
+
+.custom-card-back {
+  background: #263449;
+  transform: rotateY(180deg);
 }
 
 .custom-question-tts {
@@ -452,10 +492,10 @@ body {
 }
 
 .custom-card-meaning {
-  min-height: 74px;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 74px;
   font-size: 24px;
   font-weight: 700;
   line-height: 1.35;

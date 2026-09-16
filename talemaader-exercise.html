@@ -20,16 +20,18 @@
       <span class="progress-text" id="progress-text">1 / 10</span>
     </div>
     <div class="question-card custom-question-card" id="idiom-question-card">
-      <div id="idiom-card-front">
-        <div class="question-prompt" id="question-prompt"></div>
-        <div class="question-text" id="question-text"></div>
-        <button id="idiom-question-tts-btn" class="custom-question-tts" type="button" onclick="event.stopPropagation();idiomPlayTTS()" aria-label="Hear pronunciation">🔊</button>
-        <div class="custom-card-hint">Tap the card to see the meaning</div>
-      </div>
-      <div id="idiom-card-back" hidden>
-        <div class="question-prompt">Meaning</div>
-        <div class="custom-card-meaning" id="question-meaning"></div>
-        <div class="custom-card-hint">Tap the card to show the Danish expression</div>
+      <div class="custom-card-inner" id="idiom-card-inner">
+        <div class="custom-card-face custom-card-front" id="idiom-card-front">
+          <div class="question-prompt" id="question-prompt"></div>
+          <div class="question-text" id="question-text"></div>
+          <button id="idiom-question-tts-btn" class="custom-question-tts" type="button" onclick="event.stopPropagation();idiomPlayTTS()" aria-label="Hear pronunciation">🔊</button>
+          <div class="custom-card-hint">Tap the card to see the meaning</div>
+        </div>
+        <div class="custom-card-face custom-card-back" id="idiom-card-back">
+          <div class="question-prompt">Meaning</div>
+          <div class="custom-card-meaning" id="question-meaning"></div>
+          <div class="custom-card-hint">Tap the card to show the Danish expression</div>
+        </div>
       </div>
     </div>
     <div class="answer-grid" id="answer-grid"></div>
@@ -68,6 +70,6 @@
     </div>
   </div>
   <script src="js/audio-assets.js"></script>
-  <script src="js/idioms-exercise.js?v=self-assessment-card-3"></script>
+  <script src="js/idioms-exercise.js?v=self-assessment-card-4"></script>
 </body>
 </html>

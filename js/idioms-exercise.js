@@ -65,11 +65,7 @@ function idiomStopTTS() {
 }
 
 function idiomToggleCard() {
-  const front = document.getElementById('idiom-card-front');
-  const back = document.getElementById('idiom-card-back');
-  const showingBack = !back.hidden;
-  front.hidden = !showingBack;
-  back.hidden = showingBack;
+  document.getElementById('idiom-card-inner')?.classList.toggle('is-flipped');
 }
 
 async function initIdiomsExercise() {
@@ -122,8 +118,7 @@ function idiomRenderQuestion() {
   document.getElementById('question-prompt').textContent = 'Can you say what this means?';
   document.getElementById('question-text').textContent = item.danish;
   document.getElementById('question-meaning').textContent = item.meaning_english;
-  document.getElementById('idiom-card-front').hidden = false;
-  document.getElementById('idiom-card-back').hidden = true;
+  document.getElementById('idiom-card-inner').classList.remove('is-flipped');
   document.getElementById('idiom-question-tts-btn').style.display = idiomState.audio ? 'inline-flex' : 'none';
   document.getElementById('idiom-tts-label').textContent = item.danish;
   if (idiomState.audio) idiomPlayTTS(item.danish);
