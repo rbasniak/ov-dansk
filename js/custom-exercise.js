@@ -135,7 +135,7 @@ function customShowFeedback(item, resultType) {
     easy: 'Easy',
   };
   document.getElementById('feedback-title').textContent = statusLabels[resultType] || resultType;
-  document.getElementById('feedback-subtitle').textContent = 'Your self-assessment';
+  document.getElementById('feedback-subtitle').textContent = '';
   document.getElementById('feedback-answer-term').textContent = item.term;
   document.getElementById('feedback-answer-meaning').textContent = item.meaning;
   document.getElementById('tts-btn').style.display = customState.audio ? '' : 'none';
