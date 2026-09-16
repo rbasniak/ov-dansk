@@ -30,6 +30,14 @@ function customPlayTTS(text) {
   audio.play().catch(() => audio.onerror());
 }
 
+function customToggleCard() {
+  const front = document.getElementById('custom-card-front');
+  const back = document.getElementById('custom-card-back');
+  const showingBack = !back.hidden;
+  front.hidden = showingBack;
+  back.hidden = !showingBack;
+}
+
 async function initCustomExercise() {
   const raw = sessionStorage.getItem('customConfig');
   if (!raw) {
@@ -73,6 +81,11 @@ function customRenderQuestion() {
     `${customState.index + 1} / ${customState.exercises.length}`;
   document.getElementById('question-prompt').textContent = 'What does this mean?';
   document.getElementById('question-text').textContent = item.term;
+  document.getElementById('question-meaning').textContent = item.meaning;
+  document.getElementById('custom-card-front').hidden = false;
+  document.getElementById('custom-card-back').hidden = true;
+  document.getElementById('question-tts-btn').style.display = customState.audio ? 'inline-flex' : 'none';
+  document.getElementById('tts-label').textContent = item.term;
   if (customState.audio) customPlayTTS(item.term);
 
   const grid = document.getElementById('answer-grid');

@@ -64,6 +64,14 @@ function idiomStopTTS() {
   document.getElementById('tts-btn')?.classList.remove('playing');
 }
 
+function idiomToggleCard() {
+  const front = document.getElementById('idiom-card-front');
+  const back = document.getElementById('idiom-card-back');
+  const showingBack = !back.hidden;
+  front.hidden = showingBack;
+  back.hidden = !showingBack;
+}
+
 async function initIdiomsExercise() {
   const raw = sessionStorage.getItem('talemaaderConfig');
   if (!raw) { window.location.href = 'talemaader-config.html'; return; }
@@ -113,6 +121,11 @@ function idiomRenderQuestion() {
     `${idiomState.index + 1} / ${idiomState.exercises.length}`;
   document.getElementById('question-prompt').textContent = 'Can you say what this means?';
   document.getElementById('question-text').textContent = item.danish;
+  document.getElementById('question-meaning').textContent = item.meaning_english;
+  document.getElementById('idiom-card-front').hidden = false;
+  document.getElementById('idiom-card-back').hidden = true;
+  document.getElementById('idiom-question-tts-btn').style.display = idiomState.audio ? 'inline-flex' : 'none';
+  document.getElementById('idiom-tts-label').textContent = item.danish;
   if (idiomState.audio) idiomPlayTTS(item.danish);
   const grid = document.getElementById('answer-grid');
   grid.className = 'answer-grid four-options';
