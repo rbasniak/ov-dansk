@@ -68,8 +68,8 @@ function idiomToggleCard() {
   const front = document.getElementById('idiom-card-front');
   const back = document.getElementById('idiom-card-back');
   const showingBack = !back.hidden;
-  front.hidden = showingBack;
-  back.hidden = !showingBack;
+  front.hidden = !showingBack;
+  back.hidden = showingBack;
 }
 
 async function initIdiomsExercise() {

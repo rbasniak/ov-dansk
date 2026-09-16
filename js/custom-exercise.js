@@ -34,8 +34,8 @@ function customToggleCard() {
   const front = document.getElementById('custom-card-front');
   const back = document.getElementById('custom-card-back');
   const showingBack = !back.hidden;
-  front.hidden = showingBack;
-  back.hidden = !showingBack;
+  front.hidden = !showingBack;
+  back.hidden = showingBack;
 }
 
 async function initCustomExercise() {
