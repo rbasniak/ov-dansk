@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0f172a" />
   <title>Time Exercise | Danish Practice</title>
-  <link rel="stylesheet" href="css/style.css?v=feedback-redesign-1" />
+  <link rel="stylesheet" href="css/style.css" />
   <script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -38,28 +38,14 @@
 
   </div>
 
-  <div class="feedback-overlay hidden" id="feedback-overlay" role="dialog" aria-modal="true"
-       aria-labelledby="feedback-title" tabindex="-1" onclick="nextQuestion()"
-       onkeydown="if(event.target===this&&(event.key==='Enter'||event.key===' ')){event.preventDefault();nextQuestion();}">
-    <div class="feedback-status">
-      <div class="feedback-icon" id="feedback-icon"></div>
-      <div class="feedback-status-copy">
-        <div class="feedback-title" id="feedback-title"></div>
-        <div class="feedback-subtitle" id="feedback-subtitle"></div>
-      </div>
-    </div>
-
-    <div class="feedback-answer-card">
-      <div class="feedback-answer-label">Time</div>
-      <div id="feedback-correct-display" class="feedback-correct-display"></div>
-    </div>
-
-    <div class="feedback-audio-row">
-      <button id="tts-btn" class="tts-btn" onclick="event.stopPropagation(); playFeedbackTTS()" aria-label="Hear pronunciation">
-        🔊
-      </button>
-    </div>
-
+  <div class="feedback-overlay hidden" id="feedback-overlay" onclick="nextQuestion()">
+    <div class="feedback-icon" id="feedback-icon"></div>
+    <div class="feedback-title" id="feedback-title"></div>
+    <div class="feedback-subtitle" id="feedback-subtitle"></div>
+    <div id="feedback-correct-display" class="feedback-correct-display"></div>
+    <button id="tts-btn" class="tts-btn" onclick="event.stopPropagation(); playFeedbackTTS()" aria-label="Hear pronunciation">
+      🔊
+    </button>
     <div class="feedback-tap">Tap anywhere else to continue</div>
   </div>
 
@@ -90,7 +76,7 @@
   </div>
 
   <script src="js/time-data.js"></script>
-  <script src="js/time-exercise.js?v=feedback-redesign-1"></script>
+  <script src="js/time-exercise.js"></script>
   <script>
     window.addEventListener('load', () => {
       initTimeExercise();

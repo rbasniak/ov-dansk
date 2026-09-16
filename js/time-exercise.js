@@ -179,16 +179,14 @@ function _tShowFeedback(isCorrect, q) {
   overlay.className = 'feedback-overlay ' + (isCorrect ? 'success' : 'failure');
 
   document.getElementById('feedback-icon').textContent = isCorrect ? '✓' : '✗';
-  document.getElementById('feedback-title').textContent = isCorrect ? 'Correct' : 'Review this';
-  document.getElementById('feedback-subtitle').textContent =
-    isCorrect ? '' : 'Here is the correct answer';
+  document.getElementById('feedback-title').textContent = isCorrect ? 'Correct!' : 'Incorrect';
+  document.getElementById('feedback-subtitle').textContent = isCorrect ? '' : 'The correct answer was:';
   document.getElementById('feedback-correct-display').innerHTML = q.correctHTML;
 
   const ttsBtn = document.getElementById('tts-btn');
   if (ttsBtn) ttsBtn.style.display = _ts.audio ? '' : 'none';
 
   if (_ts.audio) _tPlayTTS(q.ttsText);
-  overlay.focus({ preventScroll: true });
 }
 
 function nextQuestion() {

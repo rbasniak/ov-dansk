@@ -703,13 +703,13 @@ function _nShowFeedback(isCorrect, q, isDontKnow = false) {
 
   document.getElementById('feedback-icon').textContent = isCorrect ? '✓' : (isDontKnow ? '🤔' : '✗');
 
-  document.getElementById('feedback-title').textContent =
-    q.type === 'pronunciation'
-      ? (isCorrect ? 'Got it right' : 'Needs practice')
-      : (isCorrect ? 'Correct' : 'Review this');
+  if (q.type === 'pronunciation') {
+    document.getElementById('feedback-title').textContent = isCorrect ? 'Great work!' : 'Keep practicing!';
+  } else {
+    document.getElementById('feedback-title').textContent = isCorrect ? 'Correct!' : (isDontKnow ? "Let's learn!" : 'Incorrect');
+  }
 
   const subtitleEl    = document.getElementById('feedback-subtitle');
-  const answerLabelEl = document.getElementById('feedback-answer-label');
   const correctEl     = document.getElementById('feedback-correct');
   const infoContainer = document.getElementById('noun-info-container');
   const ttsBtn        = document.getElementById('tts-btn');
@@ -719,15 +719,17 @@ function _nShowFeedback(isCorrect, q, isDontKnow = false) {
   infoContainer.style.display = 'block';
   infoContainer.innerHTML     = _nBuildInfoCard(q.nounData);
 
-  const correctOption = q.options && q.options.find(o => o.value === q.correctValue);
-  const primaryValue = q.type === 'pronunciation'
-    ? q.danishWord
-    : (correctOption ? correctOption.label : q.correctValue);
-  answerLabelEl.textContent = q.type === 'pronunciation' ? 'Practiced form' : 'Correct answer';
-  correctEl.textContent = primaryValue || '';
-  subtitleEl.textContent = q.type === 'pronunciation'
-    ? 'Self-assessment'
-    : 'Noun details';
+  if (q.type === 'pronunciation') {
+    subtitleEl.textContent = isCorrect ? '' : 'Listen again and study the forms:';
+    correctEl.textContent  = '';
+  } else if (isCorrect) {
+    subtitleEl.textContent = '';
+    correctEl.textContent  = '';
+  } else {
+    subtitleEl.textContent = 'The correct answer is:';
+    const correct = q.options.find(o => o.value === q.correctValue);
+    correctEl.textContent  = correct ? correct.label : q.correctValue;
+  }
 
   if (_nState.audio) {
     if (ttsBtn)   ttsBtn.style.display   = '';
@@ -736,7 +738,6 @@ function _nShowFeedback(isCorrect, q, isDontKnow = false) {
   if (ttsLabel) ttsLabel.textContent = _nCurrentWord;
 
   if (_nState.audio) _nPlayTTS();
-  overlay.focus({ preventScroll: true });
 }
 
 // ─── Next Question ────────────────────────────────────────────────────────────

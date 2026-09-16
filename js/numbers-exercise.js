@@ -233,22 +233,20 @@ function _nShowFeedback(isCorrect, q) {
   overlay.className = 'feedback-overlay ' + (isCorrect ? 'success' : 'failure');
 
   document.getElementById('feedback-icon').textContent  = isCorrect ? '✓' : '✗';
-  document.getElementById('feedback-title').textContent = isCorrect ? 'Correct' : 'Review this';
+  document.getElementById('feedback-title').textContent = isCorrect ? 'Correct!' : 'Incorrect';
 
-  document.getElementById('feedback-answer-label').textContent =
-    q.type === 'audio-to-num' ? 'Correct answer' : 'Danish form';
+  // Always show numeral + Danish text
   document.getElementById('feedback-number').textContent = q.number;
   document.getElementById('feedback-danish').textContent = danishNumber(q.number);
 
-  document.getElementById('feedback-subtitle').textContent =
-    isCorrect ? '' : 'Here is the correct answer';
+  // Subtitle (only on wrong answer)
+  document.getElementById('feedback-subtitle').textContent = isCorrect ? '' : 'The correct answer was:';
 
   // TTS button visibility
   const ttsBtn = document.getElementById('tts-btn');
   if (ttsBtn) ttsBtn.style.display = _ns.audio ? '' : 'none';
 
   if (_ns.audio) _nPlayTTS(q.ttsText);
-  overlay.focus({ preventScroll: true });
 }
 
 /* ── Navigation ──────────────────────────────────────────────── */
