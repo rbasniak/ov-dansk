@@ -106,6 +106,20 @@ function _sm2Update(existing, quality, reviewToday = false) {
   };
 }
 
+// Predicts the displayed review window without mutating progress or applying
+// random fuzz. The actual write still uses _sm2Update and its randomization.
+function getReviewIntervalLabel(existing = {}, quality) {
+  let { interval = 0, easeFactor = 2.5, repetitions = 0 } = existing;
+  if (quality < 3) return 'Review tomorrow';
+
+  const baseInterval = SM2_BASE_INTERVALS[repetitions];
+  const intervalDays = baseInterval || Math.round(interval * easeFactor);
+  if (intervalDays <= 1) return 'Review in 1 day';
+
+  const fuzz = Math.min(7, Math.max(1, Math.round(intervalDays * 0.25)));
+  return `Review in ${Math.max(2, intervalDays - fuzz)}–${intervalDays + fuzz} days`;
+}
+
 // ─── Firestore helpers ────────────────────────────────────────────────────────
 
 function _itemRef(subject, itemId) {

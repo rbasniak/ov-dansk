@@ -141,12 +141,7 @@ function idiomRenderQuestion() {
 
 function idiomIntervalLabel(item, quality) {
   const progress = idiomState.progressMap[String(item.id)] || {};
-  const repetitions = progress.repetitions || 0;
-  const base = SM2_BASE_INTERVALS[repetitions] ||
-    Math.round((progress.interval || 1) * (progress.easeFactor || 2.5));
-  if (base <= 1) return 'Review in 1 day';
-  const fuzz = Math.min(7, Math.max(1, Math.round(base * 0.25)));
-  return `Review in ${Math.max(2, base - fuzz)}–${base + fuzz} days`;
+  return getReviewIntervalLabel(progress, quality);
 }
 
 function idiomHandleAnswer(resultType) {
