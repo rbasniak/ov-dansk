@@ -165,5 +165,6 @@ function customShowSummary() {
 
 window.addEventListener('load', () => {
   window.twemoji?.parse?.(document.body, { folder: 'svg', ext: '.svg' });
+  document.getElementById('custom-question-card')?.addEventListener('click', customToggleCard);
   initAuth(() => initCustomExercise(), () => { window.location.href = 'custom-config.html'; });
 });

@@ -204,6 +204,7 @@ function idiomShowSummary() {
 
 window.addEventListener('load', () => {
   window.twemoji?.parse?.(document.body, { folder: 'svg', ext: '.svg' });
+  document.getElementById('idiom-question-card')?.addEventListener('click', idiomToggleCard);
   initAuth(() => { renderAuthButton(); initIdiomsExercise(); },
            () => { renderAuthButton(); initIdiomsExercise(); });
 });
