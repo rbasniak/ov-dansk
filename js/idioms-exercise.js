@@ -174,7 +174,7 @@ function idiomShowFeedback(item, resultType) {
     easy: 'Easy',
   };
   document.getElementById('feedback-title').textContent = statusLabels[resultType] || resultType;
-  document.getElementById('feedback-subtitle').textContent = '';
+  document.getElementById('feedback-subtitle').textContent = 'Your self-assessment';
   document.getElementById('feedback-answer-term').textContent = item.danish;
   document.getElementById('feedback-answer-meaning').textContent = item.meaning_english;
   document.getElementById('idiom-info-container').innerHTML = idiomInfoCard(item);
