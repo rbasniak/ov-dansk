@@ -31,7 +31,9 @@ function customPlayTTS(text) {
 }
 
 function customToggleCard() {
-  document.getElementById('custom-card-inner')?.classList.toggle('is-flipped');
+  const flipped = document.getElementById('custom-card-inner')?.classList.toggle('is-flipped');
+  const answerGrid = document.getElementById('answer-grid');
+  if (answerGrid) answerGrid.hidden = !flipped;
 }
 
 async function initCustomExercise() {
@@ -85,6 +87,7 @@ function customRenderQuestion() {
 
   const grid = document.getElementById('answer-grid');
   grid.className = 'answer-grid four-options';
+  grid.hidden = true;
   grid.innerHTML = '';
   [
     ['I don’t know', 'dont_know', 'Again this session'],

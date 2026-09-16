@@ -65,7 +65,9 @@ function idiomStopTTS() {
 }
 
 function idiomToggleCard() {
-  document.getElementById('idiom-card-inner')?.classList.toggle('is-flipped');
+  const flipped = document.getElementById('idiom-card-inner')?.classList.toggle('is-flipped');
+  const answerGrid = document.getElementById('answer-grid');
+  if (answerGrid) answerGrid.hidden = !flipped;
 }
 
 async function initIdiomsExercise() {
@@ -124,6 +126,7 @@ function idiomRenderQuestion() {
   if (idiomState.audio) idiomPlayTTS(item.danish);
   const grid = document.getElementById('answer-grid');
   grid.className = 'answer-grid four-options';
+  grid.hidden = true;
   grid.innerHTML = '';
   [
     ['I don’t know', 'dont_know', 'Again this session'],
